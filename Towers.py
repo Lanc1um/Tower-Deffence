@@ -25,15 +25,15 @@ class BaseTower(pygame.sprite.Sprite):
         self.rect.x = position[0]
         self.rect.y = position[1]
         self.rotation = rotation
-        self.reach = 300
+        self.reach = 1000
 
     def locate(self, pos):
         center_x = self.rect.centerx
         center_y = self.rect.centery
 
         # Конечная точка зелёной линии
-        end_x = center_x + 300 * math.cos(math.radians(self.rotation))
-        end_y = center_y - 300 * math.sin(math.radians(self.rotation))
+        end_x = center_x + self.reach * math.cos(math.radians(self.rotation))
+        end_y = center_y - self.reach * math.sin(math.radians(self.rotation))
 
         # Вектор линии
         line_vec = (end_x - center_x, end_y - center_y)
@@ -63,8 +63,8 @@ class BaseTower(pygame.sprite.Sprite):
         center_y = self.rect.centery
 
         # Конечная точка зелёной линии
-        end_x = center_x + 300 * math.cos(math.radians(self.rotation))
-        end_y = center_y - 300 * math.sin(math.radians(self.rotation))
+        end_x = center_x + self.reach * math.cos(math.radians(self.rotation))
+        end_y = center_y - self.reach * math.sin(math.radians(self.rotation))
 
         # Вектор линии
         line_vec = (end_x - center_x, end_y - center_y)
@@ -94,14 +94,10 @@ class BaseTower(pygame.sprite.Sprite):
         center_y = self.rect.centery
 
         # Конечная точка линии
-        end_x = center_x + 300 * math.cos(math.radians(self.rotation))
-        end_y = center_y - 300 * math.sin(math.radians(self.rotation))  # Отнимаем, так как Y ось направлена вниз
-
-        # target_x = target[0]
-        # target_y = target[1]
+        end_x = center_x + self.reach * math.cos(math.radians(self.rotation))
+        end_y = center_y - self.reach * math.sin(math.radians(self.rotation))  # Отнимаем, так как Y ось направлена вниз
 
         # Рисуем линию
         pygame.draw.line(screen, pygame.color.Color("Green"), (center_x, center_y), (end_x, end_y), 5)
-        # pygame.draw.line(screen, pygame.color.Color("Black"), (center_x, center_y), (target_x, target_y), 5)
 
         screen.blit(self.image, (self.rect.x, self.rect.y))

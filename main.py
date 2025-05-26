@@ -7,6 +7,7 @@ from btn import *
 from Towers import *
 from Enemy import *
 
+
 class Game():
     def __init__(self):
         self.WIN_WIDTH = 800
@@ -36,6 +37,9 @@ class Game():
         quit_button = Button((200, 400), (200, 100), "Выйти", color=pygame.color.Color("Red"), on_click=self.quit)
         self.button_group.add(quit_button)
         self.screen.blit(button_text, (100, 100))
+        self.button_group.update()
+        for btn in self.button_group.sprites():
+            btn.draw(self.screen)
 
     def draw_settings_menu(self):
         font = pygame.font.Font(None, 36)
@@ -43,8 +47,11 @@ class Game():
         quit_button = Button((200, 400), (200, 100), "Выйти", color=pygame.color.Color("Red"), on_click=functools.partial(self.change_screen, "Start"))
         self.button_group.add(quit_button)
         self.screen.blit(button_text, (100, 100))
+        self.button_group.update()
+        for btn in self.button_group.sprites():
+            btn.draw(self.screen)
 
-    def draw_game_screen(self):
+    def draw_game_screen(self, lastpos):
         self.bg.draw_cells()
 
         for tower in self.tower_group.sprites():
@@ -53,11 +60,29 @@ class Game():
         for enemy in self.enemy_group.sprites():
             enemy.draw(self.screen)
 
+        for tower in self.tower_group.sprites():
+            tower.locate(lastpos)
+
+        self.tower_group.update()
+
+        dest = ""
+
+        collision = pygame.sprite.groupcollide(self.enemy_group, self.bg.road_group, False, False)
+
+        for enemy, block_list in collision.items():
+            dest = ""
+            if len(block_list) == 1:
+                dest = block_list[0].get_dest()
+            if dest != "":
+                enemy.rotate(dest)
+            enemy.update()
+            enemy.draw(self.screen)
+
     def add_enemy(self, position, rotation):
         self.enemy_group.add(BaseEnemy(position, rotation))
 
     def add_tower(self, position, rotation):
-        self.tower_group.add(BaseTower((200, 200), 0))
+        self.tower_group.add(BaseTower(position, rotation))
 
     def quit(self):
         print("QUIT")
@@ -99,38 +124,13 @@ class Game():
             if self.window == "Start":
                 self.draw_start_menu()
 
+
             if self.window == "Settings":
                 self.draw_settings_menu()
 
+
             if self.window == "Game":
-                self.draw_game_screen()
-
-            self.button_group.update()
-            for btn in self.button_group.sprites():
-                btn.draw(self.screen)
-
-            for tower in self.tower_group.sprites():
-                tower.locate(lastpos)
-
-            self.tower_group.update()
-            for tower in self.tower_group.sprites():
-                tower.draw(self.screen, lastpos)
-
-            dest = ""
-
-            collision = pygame.sprite.groupcollide(self.enemy_group, self.bg.road_group, False, False)
-            # print(collision)
-
-            for enemy, block_list in collision.items():
-                dest = ""
-                # print(enemy, block_list)
-                if len(block_list) == 1:
-                    dest = block_list[0].get_dest()
-                    # print(dest)
-                if dest != "":
-                    enemy.rotate(dest)
-                enemy.update()
-                enemy.draw(self.screen)
+                self.draw_game_screen(lastpos)
 
             pygame.display.update()
             pygame.display.flip()
