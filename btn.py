@@ -1,6 +1,6 @@
 import pygame
 class Button(pygame.sprite.Sprite):
-    def __init__(self, position, size, text, on_click = lambda: print("Нажато"), color=pygame.color.Color("White"), text_color=pygame.color.Color("Black")):
+    def __init__(self, position, size, text, font, on_click = lambda: print("Нажато"), color=pygame.color.Color("White"), text_color=pygame.color.Color("Black")):
         super().__init__()
         self.size = size
         self.color = color
@@ -12,7 +12,7 @@ class Button(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = position[0]
         self.rect.y = position[1]
-        self.font = pygame.font.Font(None, 36)
+        self.font = font
         self.is_clicked = False
 
     def clicked(self):

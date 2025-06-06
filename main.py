@@ -34,6 +34,7 @@ class Game():
         self.window = "Start"
         self.fps = 30
 
+
         self.button_group = pygame.sprite.Group()
         self.tower_group = pygame.sprite.Group()
         self.enemy_group = pygame.sprite.Group()
@@ -50,42 +51,23 @@ class Game():
 
         pygame.init()
         pygame.display.set_caption("hz")
+        self.font = pygame.font.Font(None, 36)
+        self.change_screen("Start")
         self.mainloop()
 
     def draw_start_menu(self):
-        font = pygame.font.Font(None, 36)
-        button_text = font.render("Start page", True, pygame.color.Color("Black"))
-        start_button = Button((200, 200), (200, 100), "Начать", color=pygame.color.Color("Red"), on_click=functools.partial(self.change_screen, "Levels"))
-        self.button_group.add(start_button)
-        setting_button = Button((200, 300), (200, 100), "Настройки", color=pygame.color.Color("Red"), on_click=functools.partial(self.change_screen, "Settings"))
-        self.button_group.add(setting_button)
-        quit_button = Button((200, 400), (200, 100), "Выйти", color=pygame.color.Color("Red"), on_click=self.quit)
-        self.button_group.add(quit_button)
+        button_text = self.font.render("Start page", True, pygame.color.Color("Black"))
         self.screen.blit(button_text, (100, 100))
-        self.button_group.update()
         for btn in self.button_group.sprites():
             btn.draw(self.screen)
 
     def draw_settings_menu(self):
-        font = pygame.font.Font(None, 36)
-        button_text = font.render("Settings page", True, pygame.color.Color("Black"))
-        quit_button = Button((200, 400), (200, 100), "Выйти", color=pygame.color.Color("Red"), on_click=functools.partial(self.change_screen, "Start"))
-        self.button_group.add(quit_button)
+        button_text = self.font.render("Settings page", True, pygame.color.Color("Black"))
         self.screen.blit(button_text, (100, 100))
-        self.button_group.update()
         for btn in self.button_group.sprites():
             btn.draw(self.screen)
 
     def draw_level_choice_menu(self):
-        for i in range(len(self.levels)):
-            self.button_group.add(Button((200, 200+100*i), (200, 100), str(self.levels[i].split(".")[0]), color=pygame.color.Color("Red"), on_click=functools.partial(self.bg.choose_level, f"{self.levels[i]}")))
-
-        self.button_group.add(Button((200, 200+100*(len(self.levels)+1)),
-                                      (200, 100),
-                                     "Start",
-                                     color = pygame.color.Color("Red"),
-                                     on_click = functools.partial(self.change_screen, "Game")))
-        self.button_group.update()
         for btn in self.button_group.sprites():
             btn.draw(self.screen)
 
@@ -160,7 +142,32 @@ class Game():
 
         self.window = target_screen
 
-        if target_screen == "Game":
+        if target_screen == "Start":
+            # создаём кнопки стартового меню
+            start_button = Button((200, 200), (200, 100), "Начать", font=self.font, color=pygame.color.Color("Red"),
+                                  on_click=functools.partial(self.change_screen, "Levels"))
+            setting_button = Button((200, 300), (200, 100), "Настройки",  font=self.font, color=pygame.color.Color("Red"),
+                                    on_click=functools.partial(self.change_screen, "Settings"))
+            quit_button = Button((200, 400), (200, 100), "Выйти",  font=self.font, color=pygame.color.Color("Red"), on_click=self.quit)
+            self.button_group.add(start_button, setting_button, quit_button)
+
+        elif target_screen == "Levels":
+            for i in range(len(self.levels)):
+                self.button_group.add(Button((200, 200 + 100 * i), (200, 100), str(self.levels[i].split(".")[0]), font=self.font,
+                                             color=pygame.color.Color("Red"),
+                                             on_click=functools.partial(self.bg.choose_level, f"{self.levels[i]}")))
+            self.button_group.add(Button((200, 200 + 100 * (len(self.levels) + 1)),
+                                         (200, 100),
+                                         "Start", font=self.font,
+                                         color=pygame.color.Color("Red"),
+                                         on_click=functools.partial(self.change_screen, "Game")))
+
+        elif target_screen == "Settings":
+            quit_button = Button((200, 400), (200, 100), "Выйти",  font=self.font, color=pygame.color.Color("Red"),
+                                 on_click=functools.partial(self.change_screen, "Start"))
+            self.button_group.add(quit_button)
+
+        elif target_screen == "Game":
             self.draw_game_ui()
             self.bg.draw_cells()
 
@@ -189,6 +196,8 @@ class Game():
 
             self.bg.update()
             self.bg.draw(self.screen)
+
+            print(len(self.button_group))
             if self.window == "Start":
                 self.draw_start_menu()
 
