@@ -3,6 +3,7 @@ import pygame
 import random
 import functools
 import os
+import json
 
 from map import *
 from btn import *
@@ -10,25 +11,42 @@ from Towers import *
 from Enemy import *
 
 
+class UI(pygame.sprite.Sprite):
+    def __init__(self, width, height):
+        super().__init__()
+        self.win_width = width
+        self.win_height = height
+        self.ui_group = pygame.sprite.Group()
+
+    def create_game_menu(self):
+        header = pygame.Surface((self.win_width, self.win_height//5))
+        header.fill(pygame.color.Color("Green"))
+        self.ui_group.add(header)
+
+
 class Game():
     def __init__(self):
-        self.WIN_WIDTH = 800
-        self.WIN_HEIGHT = 640
+        self.WIN_WIDTH = 768
+        self.WIN_HEIGHT = 768
         self.BACKGROUND_COLOR = pygame.color.Color("White")
         self.screen = pygame.display.set_mode((self.WIN_WIDTH, self.WIN_HEIGHT))
         self.bg = Background(self.WIN_WIDTH, self.WIN_HEIGHT, self.BACKGROUND_COLOR)
         self.window = "Start"
         self.fps = 30
-        self.main_group = pygame.sprite.Group()
+
         self.button_group = pygame.sprite.Group()
         self.tower_group = pygame.sprite.Group()
         self.enemy_group = pygame.sprite.Group()
+        self.ui_group = pygame.sprite.Group()
+
         self.running = False
 
-        folder_path = './Levels'
+        self.money = 5
 
-        files = os.listdir(folder_path)
-        self.levels = [f for f in files if os.path.isfile(os.path.join(folder_path, f))]
+        self.level_path = 'Content/Levels'
+
+        files = os.listdir(self.level_path)
+        self.levels = [f for f in files if os.path.isfile(os.path.join(self.level_path, f))]
 
         pygame.init()
         pygame.display.set_caption("hz")
@@ -60,7 +78,7 @@ class Game():
 
     def draw_level_choice_menu(self):
         for i in range(len(self.levels)):
-            self.button_group.add(Button((200, 200+100*i), (200, 100), str(self.levels[i]), color=pygame.color.Color("Red"), on_click=functools.partial(self.bg.choose_level, f"{self.levels[i]}")))
+            self.button_group.add(Button((200, 200+100*i), (200, 100), str(self.levels[i].split(".")[0]), color=pygame.color.Color("Red"), on_click=functools.partial(self.bg.choose_level, f"{self.levels[i]}")))
 
         self.button_group.add(Button((200, 200+100*(len(self.levels)+1)),
                                       (200, 100),
@@ -72,7 +90,6 @@ class Game():
             btn.draw(self.screen)
 
     def draw_game_screen(self):
-        self.bg.draw_cells()
 
         for tower in self.tower_group.sprites():
             tower.draw(self.screen)
@@ -82,18 +99,16 @@ class Game():
             bullet_col = pygame.sprite.groupcollide(tower.bullets, self.enemy_group, True, False)
 
             if len(bullet_col) > 0:
-                print(bullet_col)
                 for bullet, enemy_group in bullet_col.items():
                     for enemy in enemy_group:
-                        bullet.hit(enemy)
+                        self.money += bullet.hit(enemy)
+
 
         for enemy in self.enemy_group.sprites():
             if enemy.is_alive():
                 enemy.draw(self.screen)
             else:
                 enemy.kill()
-
-        self.tower_group.update()
 
         collision = pygame.sprite.groupcollide(self.enemy_group, self.bg.road_group, False, False)
 
@@ -115,11 +130,20 @@ class Game():
             enemy.update()
             enemy.draw(self.screen)
 
-    def add_enemy(self, position, rotation):
-        self.enemy_group.add(BaseEnemy((position[0], position[1]), rotation))
+    def draw_game_ui(self):
+        pass
 
-    def add_tower(self, position, rotation):
-        self.tower_group.add(BaseTower((position[0], position[1]), rotation))
+    def add_enemy(self, enemy):
+        self.enemy_group.add(enemy)
+
+    def add_tower(self, tower):
+        if self.money >= tower.cost:
+            for cell in self.bg.cell_group.sprites():
+                if cell.pos == tower.pos:
+                    if not cell.tower:
+                        cell.tower = True
+                        self.tower_group.add(tower)
+                        self.money -= tower.cost
 
     def quit(self):
         print("QUIT")
@@ -129,12 +153,16 @@ class Game():
         self.button_group.empty()
         self.tower_group.empty()
         self.enemy_group.empty()
+        self.bg.cell_group.empty()
+        self.bg.road_group.empty()
+        self.bg.base_group.empty()
+        self.ui_group.empty()
 
         self.window = target_screen
 
         if target_screen == "Game":
-            self.add_tower((2, 4), 0)
-            self.add_enemy((1, 4), 0)
+            self.draw_game_ui()
+            self.bg.draw_cells()
 
     def mainloop(self):
         self.running = True
@@ -149,19 +177,23 @@ class Game():
                     for button in self.button_group.sprites():
                         if button.rect.collidepoint(event.pos):
                             button.clicked()
+
+                    for cell in self.bg.cell_group.sprites():
+                        if cell.rect.collidepoint(event.pos):
+                            if not cell.tower:
+                                self.add_tower(BaseTower(cell.pos, 0))
+
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_UP:
-                        self.add_enemy((1, 4), 0)
+                        self.add_enemy(BaseEnemy((1, 4), 0))
 
             self.bg.update()
             self.bg.draw(self.screen)
             if self.window == "Start":
                 self.draw_start_menu()
 
-
             if self.window == "Settings":
                 self.draw_settings_menu()
-
 
             if self.window == "Game":
                 self.draw_game_screen()

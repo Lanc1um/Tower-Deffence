@@ -1,10 +1,13 @@
 import pygame
+import json
+
 
 class Cell(pygame.sprite.Sprite):
     def __init__(self, pos):
         super().__init__()
         self.w = 50
         self.h = 50
+        self.pos = pos
         self.image = pygame.Surface((self.w, self.h), pygame.SRCALPHA)  # Allow transparency
         self.image.fill((0, 0, 0, 0))  # Fill with transparent color
         pygame.draw.rect(self.image, (0, 0, 0), (0, 0, self.w, self.h), 1)  # Draw border
@@ -52,7 +55,6 @@ class RoadCell(Cell):
         text_surface = font.render(self.destination, True, (0, 0, 0))
         text_rect = text_surface.get_rect(center=(self.w // 2, self.h // 2))
         self.image.blit(text_surface, text_rect)
-
     def get_dest(self):
         return self.destination
 
@@ -60,6 +62,7 @@ class RoadCell(Cell):
 class FieldCell(Cell):
     def __init__(self, pos):
         super().__init__(pos)
+        self.tower = False
 
 
 class Background(pygame.sprite.Sprite):
@@ -70,7 +73,9 @@ class Background(pygame.sprite.Sprite):
         self.image = pygame.Surface((self.width, self.height))
         self.image.fill(color)
         self.rect = self.image.get_rect()
-        self.map = open("Levels/test.txt", "r")
+        self.path = "Content/Levels/Test.json"
+        with open(self.path, 'r', encoding='utf-8') as file:
+            self.map = json.load(file)
         self.cell_group = pygame.sprite.Group()
         self.road_group = pygame.sprite.Group()
         self.base_group = pygame.sprite.Group()
@@ -83,12 +88,15 @@ class Background(pygame.sprite.Sprite):
         self.base_group.draw(screen)
 
     def choose_level(self, level):
-        self.map = open(f"Levels/{level}", "r")
+        self.path = f"Content/Levels/{level}"
+        with open(self.path, 'r', encoding='utf-8') as file:
+            self.map = json.load(file)
+
 
     def draw_cells(self):
         x = 0
         y = 0
-        map = self.map.readlines()
+        map = self.map["layers"]["data"]
         for row in map:
             y += 1
             for cel in row:

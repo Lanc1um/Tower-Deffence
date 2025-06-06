@@ -25,6 +25,10 @@ class Bullet(pygame.sprite.Sprite):
 
     def hit(self, target):
         target.hp -= self.damage
+        if not target.is_alive():
+            return target.money
+        else:
+            return 0
 
     def draw(self, screen):
         screen.blit(self.image, (self.rect.x, self.rect.y))
@@ -34,9 +38,10 @@ class BaseTower(pygame.sprite.Sprite):
         super().__init__()
         self.image = pygame.Surface((50, 50))
         self.image.fill(pygame.color.Color("Red"))
+        self.pos = position
         self.rect = self.image.get_rect()
-        self.rect.x = position[0]*50
-        self.rect.y = position[1]*50
+        self.rect.x = self.pos[0]*50
+        self.rect.y = self.pos[1]*50
         self.rotation = rotation
         self.reach = 300
         self.enemy_located = False
@@ -45,6 +50,8 @@ class BaseTower(pygame.sprite.Sprite):
         self.bullets = pygame.sprite.Group()
         self.shoot_speed = 1
         self.last_shot = 0
+
+        self.cost = 5
 
     def locate(self, pos):
         center_x = self.rect.centerx

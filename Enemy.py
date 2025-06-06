@@ -4,10 +4,11 @@ import math
 class BaseEnemy(pygame.sprite.Sprite):
     def __init__(self, position, rotation = 0):
         super().__init__()
-        self.dest_list = {">":(0, 1, 0),
-                          "<":(180, -1, 0),
-                          "^":(90, 0, -1),
-                          "|":(270, 0, 1),
+        self.speed = 5
+        self.dest_list = {">":(0, self.speed, 0),
+                          "<":(180, -self.speed, 0),
+                          "^":(90, 0, -self.speed),
+                          "|":(270, 0, self.speed),
                           }
         self.image = pygame.Surface((40, 40))
         self.rect = self.image.get_rect()
@@ -17,6 +18,7 @@ class BaseEnemy(pygame.sprite.Sprite):
         self.velx = 1
         self.vely = 0
         self.hp = 100
+        self.money = 5
 
     def move(self):
         self.rect.x += self.velx
