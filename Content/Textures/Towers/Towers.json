@@ -1,0 +1,44 @@
+{
+  "towers": [
+    {
+      "name": "Башня лучника",
+      "hp": 1,
+      "damage": 1,
+      "attack_radius": 1,
+      "cost": 1,
+      "attack_speed": 1,
+      "sprite": "Content/Textures/Towers/Combat Towers/spr_tower_archer.png",
+      "projectile_sprite": "Content/Textures/Towers/Combat Towers Projectiles/spr_tower_archer_projectile.png"
+    },
+    {
+      "name": "Ледяной маг",
+      "hp": 1,
+      "damage": 1,
+      "attack_radius": 1,
+      "cost": 1,
+      "attack_speed": 1,
+      "sprite": "Content/Textures/Towers/Combat Towers/spr_tower_ice_wizard.png",
+      "projectile_sprite": "Content/Textures/Towers/Combat Towers Projectiles/spr_tower_ice_wizard_projectile.png"
+    },
+    {
+      "name": "Мортира",
+      "hp": 1,
+      "damage": 1,
+      "attack_radius": 1,
+      "cost": 1,
+      "attack_speed": 1,
+      "sprite": "Content/Textures/Towers/Combat Towers/spr_tower_cannon.png",
+      "projectile_sprite": "Content/Textures/Towers/Combat Towers Projectiles/spr_tower_cannon_projectile.png"
+    },
+    {
+      "name": "Арбалет",
+      "hp": 1,
+      "damage": 1,
+      "attack_radius": 1,
+      "cost": 1,
+      "attack_speed": 1,
+      "sprite": "Content/Textures/Towers/Combat Towers/spr_tower_crossbow.png",
+      "projectile_sprite": "Content/Textures/Towers/Combat Towers Projectiles/spr_tower_crossbow_projectile.png"
+    }
+  ]
+}

@@ -4,22 +4,46 @@ from Enemy import *
 import time
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, pos, rotation):
+    def __init__(self, pos, target=None, speed=25, rotation=0, homing_distance=100):
         super().__init__()
         self.image = pygame.Surface((10, 10))
         self.image.fill(pygame.color.Color("Black"))
-        self.rect = self.image.get_rect()
-        self.rect.x = pos[0]
-        self.rect.y = pos[1]
-        self.rotation = rotation
-        self.speed = 10
-        self.vel = (math.sin(math.radians(rotation + 90))*self.speed, math.cos(math.radians(rotation + 90))*self.speed)
+        self.rect = self.image.get_rect(center=pos)
+        self.speed = speed
+        self.target = target  # цель
+        self.homing_distance = homing_distance  # дистанция для самонаведения
         self.damage = 100
 
+        # начальный вектор движения (полет по прямой)
+        angle_rad = math.radians(rotation + 90)
+        self.vel = (
+            math.sin(angle_rad) * self.speed,
+            math.cos(angle_rad) * self.speed
+        )
+
     def update(self):
+        if self.target and self.target.is_alive():
+            target_pos = self.target.rect.center
+            dx = target_pos[0] - self.rect.centerx
+            dy = target_pos[1] - self.rect.centery
+            distance = math.hypot(dx, dy)
+
+            if distance <= self.homing_distance and distance != 0:
+                # если до цели осталось меньше homing_distance — включаем самонаведение
+                dx /= distance
+                dy /= distance
+                self.vel = (dx * self.speed, dy * self.speed)
+
+            # проверка на попадание
+            if distance < self.speed:
+                self.hit(self.target)
+                self.kill()
+
+        # движение
         self.rect.x += self.vel[0]
         self.rect.y += self.vel[1]
 
+        # если вылетела за экран — уничтожить
         if self.rect.x < 0 or self.rect.x > 800 or self.rect.y < 0 or self.rect.y > 640:
             self.kill()
 
@@ -31,17 +55,19 @@ class Bullet(pygame.sprite.Sprite):
             return 0
 
     def draw(self, screen):
-        screen.blit(self.image, (self.rect.x, self.rect.y))
+        screen.blit(self.image, self.rect)
+
+
 
 class BaseTower(pygame.sprite.Sprite):
-    def __init__(self, position, rotation = 0):
+    def __init__(self, position, cellsize = 16, rotation = 0):
         super().__init__()
-        self.image = pygame.Surface((50, 50))
+        self.image = pygame.Surface((16*1.3, 16*1.3))
         self.image.fill(pygame.color.Color("Red"))
         self.pos = position
         self.rect = self.image.get_rect()
-        self.rect.x = self.pos[0]*50
-        self.rect.y = self.pos[1]*50
+        self.rect.x = self.pos[0]*16*1.3
+        self.rect.y = self.pos[1]*16*1.3
         self.rotation = rotation
         self.reach = 300
         self.enemy_located = False
@@ -137,9 +163,15 @@ class BaseTower(pygame.sprite.Sprite):
             self.shoot()
 
     def shoot(self):
-        current_time = time.time()  # Получаем текущее время
-        if current_time - self.last_shot >= self.shoot_speed:
-            self.bullets.add(Bullet(self.rect.center, self.rotation))
+        current_time = time.time()
+        if current_time - self.last_shot >= self.shoot_speed and self.target:
+            bullet = Bullet(
+                pos=self.rect.center,
+                target=self.target,
+                rotation=self.rotation,
+                homing_distance=50  # дистанция включения самонаведения
+            )
+            self.bullets.add(bullet)
             self.last_shot = current_time
 
     def draw(self, screen):

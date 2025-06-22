@@ -11,11 +11,12 @@ from Towers import *
 from Enemy import *
 
 
+
 class UI(pygame.sprite.Sprite):
-    def __init__(self, width, height):
+    def __init__(self, screen):
         super().__init__()
-        self.win_width = width
-        self.win_height = height
+        self.win_width = screen[0]
+        self.win_height = screen[1]
         self.ui_group = pygame.sprite.Group()
 
     def create_game_menu(self):
@@ -24,21 +25,24 @@ class UI(pygame.sprite.Sprite):
         self.ui_group.add(header)
 
 
+
+
 class Game():
     def __init__(self):
-        self.WIN_WIDTH = 768
-        self.WIN_HEIGHT = 768
+        with open("settings.json", 'r', encoding='utf-8') as file:
+            self.settings = json.load(file)
+
+        self.WIN_WIDTH = self.settings["graphics"]["resolution"]["width"]
+        self.WIN_HEIGHT = self.settings["graphics"]["resolution"]["height"]
         self.BACKGROUND_COLOR = pygame.color.Color("White")
         self.screen = pygame.display.set_mode((self.WIN_WIDTH, self.WIN_HEIGHT))
         self.bg = Background(self.WIN_WIDTH, self.WIN_HEIGHT, self.BACKGROUND_COLOR)
         self.window = "Start"
-        self.fps = 30
-
+        self.fps = self.settings["graphics"]["fps"]
 
         self.button_group = pygame.sprite.Group()
         self.tower_group = pygame.sprite.Group()
         self.enemy_group = pygame.sprite.Group()
-        self.ui_group = pygame.sprite.Group()
 
         self.running = False
 
@@ -99,13 +103,19 @@ class Game():
         if len(base_col) > 0:
             for i in range(len(base_col)):
                 self.bg.base_group.update(1)
+        else:
+            self.bg.base_group.update()
 
         if not self.bg.base_group.sprites()[0].is_alive():
             self.running = False
 
         for enemy, block_list in collision.items():
             dest = ""
-            if len(block_list) == 1:
+            count = 0
+            for block in block_list:
+                if isinstance(block, RoadCell):
+                    count += 1
+            if count == 1:
                 dest = block_list[0].get_dest()
             if dest != "":
                 enemy.rotate(dest)
@@ -138,7 +148,6 @@ class Game():
         self.bg.cell_group.empty()
         self.bg.road_group.empty()
         self.bg.base_group.empty()
-        self.ui_group.empty()
 
         self.window = target_screen
 
@@ -187,17 +196,16 @@ class Game():
 
                     for cell in self.bg.cell_group.sprites():
                         if cell.rect.collidepoint(event.pos):
-                            if not cell.tower:
+                            if cell.tower_base and not cell.tower:
                                 self.add_tower(BaseTower(cell.pos, 0))
 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_UP:
-                        self.add_enemy(BaseEnemy((1, 4), 0))
+                        self.add_enemy(BaseEnemy((1, 4), 16))
 
             self.bg.update()
             self.bg.draw(self.screen)
 
-            print(len(self.button_group))
             if self.window == "Start":
                 self.draw_start_menu()
 

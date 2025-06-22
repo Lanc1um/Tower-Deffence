@@ -1,0 +1,67 @@
+{
+  "enemies": [
+    {
+      "name": "Слизень",
+      "hp": 1,
+      "damage": 1,
+      "gold": 1,
+      "sprite": "Content/Textures/Enemies/spr_normal_slime.png"
+    },
+    {
+      "name": "Большой слизень",
+      "hp": 1,
+      "damage": 1,
+      "gold": 1,
+      "sprite": "Content/Textures/Enemies/spr_big_slime.png"
+    },
+    {
+      "name": "Король слизней",
+      "hp": 1,
+      "damage": 1,
+      "gold": 1,
+      "sprite": "Content/Textures/Enemies/spr_king_slime.png"
+    },
+    {
+      "name": "Зомби",
+      "hp": 1,
+      "damage": 1,
+      "gold": 1,
+      "sprite": "Content/Textures/Enemies/spr_zombie.png"
+    },
+    {
+      "name": "Скелет",
+      "hp": 1,
+      "damage": 1,
+      "gold": 1,
+      "sprite": "Content/Textures/Enemies/spr_skeleton.png"
+    },
+    {
+      "name": "Летучая мышь",
+      "hp": 1,
+      "damage": 1,
+      "gold": 1,
+      "sprite": "Content/Textures/Enemies/spr_bat.png"
+    },
+    {
+      "name": "Призрак",
+      "hp": 1,
+      "damage": 1,
+      "gold": 1,
+      "sprite": "Content/Textures/Enemies/spr_ghost.png"
+    },
+    {
+      "name": "Гоблин",
+      "hp": 1,
+      "damage": 1,
+      "gold": 1,
+      "sprite": "Content/Textures/Enemies/spr_goblin.png"
+    },
+    {
+      "name": "Демон",
+      "hp": 1,
+      "damage": 1,
+      "gold": 1,
+      "sprite": "Content/Textures/Enemies/spr_demon.png"
+    }
+  ]
+}

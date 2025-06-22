@@ -2,18 +2,18 @@ import pygame
 import math
 
 class BaseEnemy(pygame.sprite.Sprite):
-    def __init__(self, position, rotation = 0):
+    def __init__(self, position, cellsize = 16, rotation = 0):
         super().__init__()
         self.speed = 5
-        self.dest_list = {">":(0, self.speed, 0),
-                          "<":(180, -self.speed, 0),
-                          "^":(90, 0, -self.speed),
-                          "|":(270, 0, self.speed),
+        self.dest_list = {"right":(0, self.speed, 0),
+                          "left":(180, -self.speed, 0),
+                          "up":(90, 0, -self.speed),
+                          "down":(270, 0, self.speed),
                           }
-        self.image = pygame.Surface((40, 40))
+        self.image = pygame.Surface((cellsize*1, cellsize*1))
         self.rect = self.image.get_rect()
-        self.rect.x = position[0]*50
-        self.rect.y = position[1]*50
+        self.rect.x = position[0]*cellsize
+        self.rect.y = position[1]*cellsize
         self.rotation = rotation
         self.velx = 1
         self.vely = 0
