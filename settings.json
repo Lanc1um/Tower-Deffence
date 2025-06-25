@@ -1,18 +1,18 @@
 {
-  "game": {
-    "title": "Not a game about black square",
-    "version": "1.0.0",
-    "language": "en"
-  },
-  "graphics": {
-    "fps": 30,
-    "resolution": {
-      "width": 1000,
-      "height": 1000
+    "game": {
+        "title": "Not a game about black square",
+        "version": "1.0.0",
+        "language": "en"
+    },
+    "graphics": {
+        "fps": 30,
+        "resolution": {
+            "width": 1000,
+            "height": 1000
+        }
+    },
+    "audio": {
+        "musicVolume": 0.0,
+        "mute": false
     }
-  },
-  "audio": {
-    "musicVolume": 0.1,
-    "mute": false
-  }
 }

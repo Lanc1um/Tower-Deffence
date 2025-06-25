@@ -211,7 +211,7 @@ class BaseTower(pygame.sprite.Sprite):
     def shoot(self):
         current_time = time.time()
         if current_time - self.last_shot >= self.attack_speed and self.target:
-            print(self.projectile)
+            # print(self.projectile)
             bullet = Bullet(
                 image=self.projectile,
                 pos=self.rect.center,

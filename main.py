@@ -12,6 +12,50 @@ from Enemy import *
 from UI import *
 from Cards import *
 
+class VolumeSlider:
+    def __init__(self, x, y, width, initial_value=0.5, label="Громкость"):
+        self.rect = pygame.Rect(x, y, width, 10)
+        self.handle_radius = 12
+        self.value = initial_value  # От 0.0 до 1.0
+        self.dragging = False
+        self.label = label
+        self.font = pygame.font.SysFont("Content/Textures/UI/PressStart2P-Regular.ttf", 24)
+
+    def draw(self, screen):
+        # Линия ползунка
+        pygame.draw.rect(screen, (180, 180, 180), self.rect)
+
+        # Бегунок
+        handle_x = self.rect.x + int(self.value * self.rect.width)
+        handle_pos = (handle_x, self.rect.centery)
+        pygame.draw.circle(screen, (100, 200, 255), handle_pos, self.handle_radius)
+
+        # Подпись с процентом
+        text = self.font.render(f"{self.label}: {int(self.value * 100)}%", True, (0, 0, 0))
+        screen.blit(text, (self.rect.x, self.rect.y - 30))
+
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                mx, my = event.pos
+                handle_x = self.rect.x + int(self.value * self.rect.width)
+                if self.rect.collidepoint(mx, my) or abs(mx - handle_x) < self.handle_radius:
+                    self.dragging = True
+
+        elif event.type == pygame.MOUSEBUTTONUP:
+            if event.button == 1:
+                self.dragging = False
+
+        elif event.type == pygame.MOUSEMOTION:
+            if self.dragging:
+                mx = event.pos[0]
+                mx = max(self.rect.x, min(mx, self.rect.x + self.rect.width))
+                self.value = (mx - self.rect.x) / self.rect.width
+                pygame.mixer.music.set_volume(self.value)  # 💡 динамическое изменение
+
+    def get_value(self):
+        return self.value
+
 
 class Game():
     def __init__(self):
@@ -24,12 +68,13 @@ class Game():
         pygame.init()
         pygame.mixer.init()
         pygame.mixer.music.load("Content/Music/flight.wav")
-
+        initial_volume = self.settings["audio"]["musicVolume"]
+        self.volume_slider = VolumeSlider(self.WIN_WIDTH//2-150, 200, 300, initial_value=initial_volume)
         # Установка громкости (0.0 до 1.0)
         if not self.settings["audio"]["mute"]:
-            pygame.mixer.music.set_volume(self.settings["audio"]["musicVolume"])
+            pygame.mixer.music.set_volume(initial_volume)
         else:
-            pygame.mixer.music.set_volume(self.settings["audio"]["musicVolume"])
+            pygame.mixer.music.set_volume(0)
         # Воспроизведение (циклично)
         pygame.mixer.music.play(-1)
         self.title = self.settings["game"]["title"]
@@ -48,9 +93,7 @@ class Game():
         self.enemies_killed = 0
 
         self.spawn_interval = 1000  # миллисекунды
-
         self.running = False
-
         self.ui = UI((self.WIN_WIDTH, self.WIN_HEIGHT))
 
         for tower in self.towers["towers"]:
@@ -80,8 +123,13 @@ class Game():
         bg_image = pygame.image.load("Content/Textures/UI/bg.jpg")
         bg_image = pygame.transform.scale(bg_image, (self.WIN_WIDTH, self.WIN_HEIGHT))
         self.screen.blit(bg_image, (0, 0))
+
         button_text = self.font.render("Settings page", True, pygame.color.Color("Black"))
-        self.screen.blit(button_text, (100, 100))
+        self.screen.blit(button_text, (self.WIN_WIDTH//2-button_text.get_width()//2, 100))
+
+        # Отрисовка ползунка
+        self.volume_slider.draw(self.screen)
+
         for btn in self.button_group.sprites():
             btn.draw(self.screen)
 
@@ -181,8 +229,14 @@ class Game():
                         self.money -= tower.cost
 
     def quit(self):
+        # Сохраняем громкость перед выходом
+        self.settings["audio"]["musicVolume"] = self.volume_slider.get_value()
+        with open("settings.json", 'w', encoding='utf-8') as file:
+            json.dump(self.settings, file, ensure_ascii=False, indent=4)
+
         print("QUIT")
         self.running = False
+
 
     def change_screen(self, target_screen):
         self.button_group.empty()
@@ -201,12 +255,17 @@ class Game():
                                   "Начать",
                                   font=self.font,
                                   on_click=functools.partial(self.change_screen, "Levels"))
-            quit_button = Button((self.WIN_WIDTH//2, 300),
+            setting_button = Button((self.WIN_WIDTH//2, 300),
+                                    (300, 100),
+                                    "Настройки",
+                                    font=self.font,
+                                    on_click=functools.partial(self.change_screen, "Settings"))
+            quit_button = Button((self.WIN_WIDTH//2, 400),
                                  (300, 100),
                                  "Выйти",
                                  font=self.font,
                                  on_click=self.quit)
-            self.button_group.add(start_button, quit_button)
+            self.button_group.add(start_button, setting_button, quit_button)
 
         elif target_screen == "Levels":
             c = 0
@@ -255,6 +314,8 @@ class Game():
 
 
             for event in pygame.event.get():
+                if self.window == "Settings":
+                    self.volume_slider.handle_event(event)
                 if event.type == pygame.QUIT:
                     self.quit()
                 if self.bg.base_group.sprites():
@@ -308,11 +369,11 @@ class Game():
             if self.window == "Game":
                 if self.bg.base_group.sprites()[0].hp > 0:
                     if self.bg.finished_spawning and len(self.enemy_group) == 0:
-                        self.show_end_screen(self.screen, "win", (self.WIN_WIDTH, self.WIN_HEIGHT))
+                        self.show_end_screen(self.screen, "Victory", (self.WIN_WIDTH, self.WIN_HEIGHT))
                     else:
                         self.draw_game_screen()
                 else:
-                    self.show_end_screen("lost", (self.WIN_WIDTH, self.WIN_HEIGHT))
+                    self.show_end_screen("Defeat", (self.WIN_WIDTH, self.WIN_HEIGHT))
             if self.window == "Levels":
                 self.draw_level_choice_menu()
 

@@ -45,7 +45,7 @@ class UI():
         if self.cards_visible:
             for card in self.cards:
                 if card.is_clicked(mouse_pos):
-                    print(f"Нажата карточка: {card.title}")
+                    # print(f"Нажата карточка: {card.title}")
                     # Здесь можно вызвать какое-то действие или вернуть карточку
                     return card  # например, вернуть нажатую карточку
         return None
