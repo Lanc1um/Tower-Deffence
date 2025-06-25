@@ -1,20 +1,18 @@
 {
   "game": {
-    "title": "My Awesome Game",
+    "title": "Not a game a black square",
     "version": "1.0.0",
     "language": "en"
   },
   "graphics": {
     "fps": 30,
     "resolution": {
-      "width": 1600,
-      "height": 900
+      "width": 1000,
+      "height": 1000
     }
   },
   "audio": {
-    "masterVolume": 0.8,
-    "musicVolume": 0.7,
-    "sfxVolume": 0.9,
+    "musicVolume": 0.1,
     "mute": false
   }
 }

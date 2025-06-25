@@ -5,63 +5,99 @@
       "hp": 1,
       "damage": 1,
       "gold": 1,
-      "sprite": "Content/Textures/Enemies/spr_normal_slime.png"
+      "sprite": "Content/Textures/Enemies/spr_normal_slime.png",
+      "width": 12,
+      "height": 7,
+      "frames": 4,
+      "speed": 5
     },
     {
       "name": "Большой слизень",
       "hp": 1,
       "damage": 1,
       "gold": 1,
-      "sprite": "Content/Textures/Enemies/spr_big_slime.png"
+      "sprite": "Content/Textures/Enemies/spr_big_slime.png",
+      "width": 14,
+      "height": 8,
+      "frames": 4,
+      "speed": 5
     },
     {
       "name": "Король слизней",
       "hp": 1,
       "damage": 1,
       "gold": 1,
-      "sprite": "Content/Textures/Enemies/spr_king_slime.png"
+      "sprite": "Content/Textures/Enemies/spr_king_slime.png",
+      "width": 16,
+      "height": 12,
+      "frames": 4,
+      "speed": 5
     },
     {
       "name": "Зомби",
       "hp": 1,
       "damage": 1,
       "gold": 1,
-      "sprite": "Content/Textures/Enemies/spr_zombie.png"
+      "sprite": "Content/Textures/Enemies/spr_zombie.png",
+      "width": 8,
+      "height": 7,
+      "frames": 4,
+      "speed": 5
     },
     {
       "name": "Скелет",
       "hp": 1,
       "damage": 1,
       "gold": 1,
-      "sprite": "Content/Textures/Enemies/spr_skeleton.png"
+      "sprite": "Content/Textures/Enemies/spr_skeleton.png",
+      "width": 8,
+      "height": 7,
+      "frames": 4,
+      "speed": 5
     },
     {
       "name": "Летучая мышь",
       "hp": 1,
       "damage": 1,
       "gold": 1,
-      "sprite": "Content/Textures/Enemies/spr_bat.png"
+      "sprite": "Content/Textures/Enemies/spr_bat.png",
+      "width": 10,
+      "height": 7,
+      "frames": 4,
+      "speed": 5
     },
     {
       "name": "Призрак",
       "hp": 1,
       "damage": 1,
       "gold": 1,
-      "sprite": "Content/Textures/Enemies/spr_ghost.png"
+      "sprite": "Content/Textures/Enemies/spr_ghost.png",
+      "width": 10,
+      "height": 10,
+      "frames": 8,
+      "speed": 5
     },
     {
       "name": "Гоблин",
       "hp": 1,
       "damage": 1,
       "gold": 1,
-      "sprite": "Content/Textures/Enemies/spr_goblin.png"
+      "sprite": "Content/Textures/Enemies/spr_goblin.png",
+      "width": 11,
+      "height": 8,
+      "frames": 4,
+      "speed": 5
     },
     {
       "name": "Демон",
       "hp": 1,
       "damage": 1,
       "gold": 1,
-      "sprite": "Content/Textures/Enemies/spr_demon.png"
+      "sprite": "Content/Textures/Enemies/spr_demon.png",
+      "width": 10,
+      "height": 8,
+      "frames": 4,
+      "speed": 5
     }
   ]
 }

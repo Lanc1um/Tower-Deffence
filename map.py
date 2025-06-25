@@ -48,32 +48,44 @@ class Cell(pygame.sprite.Sprite):
 
 
 class BaseCell(Cell):
-    def __init__(self, pos, cellsize, image = "Content/Textures/Environment/Grass/spr_grass_02.png"):
-
+    def __init__(self, pos, cellsize, image="Content/Textures/Environment/Grass/spr_grass_02.png"):
         self.hp = 100
-        # font = pygame.font.Font(None, 16)
-        # text_surface = font.render(str(self.hp), True, (0, 0, 0))
-        # text_rect = text_surface.get_rect(center=(self.w // 2, self.h // 2))
-        # self.image.blit(text_surface, text_rect)
-        # Загрузка спрайтлиста (один раз!)
+
+        # Загрузка спрайтлиста
         if isinstance(image, str):
             self.sprite_sheet = pygame.image.load(image).convert_alpha()
         else:
             self.sprite_sheet = image.convert_alpha()
 
-
+        # Параметры спрайтов
         self.sprite_width = 52
         self.sprite_height = 38
         self.frame_numbers = [0, 1, 2, 3]
         self.sprites = []
 
+        scale = 1.2
+
         for frame in self.frame_numbers:
-            sprite = get_image(self.sprite_sheet, frame, self.sprite_width, self.sprite_height, 1.2,
-                               (0, 0, 0))
+            sprite = get_image(
+                self.sprite_sheet,
+                frame,
+                self.sprite_width,
+                self.sprite_height,
+                scale,
+                (0, 0, 0)
+            )
             self.sprites.append(sprite)
+
         self.image = self.sprites[0]
 
+        # Расчёт смещения по высоте
+        scaled_height = self.image.get_height()
+        offset = scaled_height - cellsize  # Насколько спрайт выше ячейки
+
         super().__init__(pos, cellsize, self.image)
+
+        # Смещаем вверх, чтобы нижняя граница осталась на месте
+        self.rect.y -= offset
 
         self.current_frame = 0
         self.animation_speed = 200
@@ -88,7 +100,13 @@ class BaseCell(Cell):
         if now - self.last_update > self.animation_speed:
             self.last_update = now
             self.current_frame = (self.current_frame + 1) % len(self.sprites)
-            self.image = self.sprites[self.current_frame]  # Обновляем image текущим кадром
+
+            # Обновляем спрайт, сохраняя позицию нижней границы
+            new_image = self.sprites[self.current_frame]
+            prev_bottom = self.rect.bottom  # Сохраняем нижнюю границу
+            self.image = new_image
+            self.rect = self.image.get_rect()
+            self.rect.midbottom = (self.pos[0] * self.w + self.w // 2, prev_bottom)
 
     def damage(self, damage):
         self.hp -= damage
@@ -104,7 +122,7 @@ class Decorations(Cell):
 
 
 class RoadCell(Cell):
-    def __init__(self, pos, index, cellsize, image="Content/Textures/Environment/Grass/spr_grass_02.png",):
+    def __init__(self, pos, index, cellsize, image="Content/Textures/Environment/Grass/spr_grass_02.png"):
         self.index = int(index)
 
         self.destinations = {
@@ -139,12 +157,28 @@ class RoadCell(Cell):
         surface.blit(self.image, self.rect)
 
 
+class FieldCell(Cell):
+    def __init__(self, pos, cellsize, image = "Content/Textures/Environment/Grass/spr_grass_02.png", tower_base = False):
+        if isinstance(image, str):
+            self.image = pygame.image.load(image)
+        else:
+            self.image = image
+        super().__init__(pos, cellsize, self.image)
+        self.tower = False
+        self.tower_base = tower_base
 
-class Enemy_base(RoadCell):
-    def __init__(self, pos, index, cellsize, mob_list, image="Content/Textures/Environment/Grass/spr_grass_02.png"):
-        super().__init__(pos, index, cellsize)
+
+class Enemy_base(FieldCell):
+    def __init__(self, pos, cellsize, mob_list, enemies, image="Content/Textures/Environment/Grass/spr_grass_02.png"):
+        super().__init__(pos, cellsize, image)
+
+        self.cellsize = cellsize
         self.mob_list = mob_list.copy()  # Копируем, чтобы избежать изменений извне
         self.finished = False  # Флаг окончания спавна
+        self.enemies = enemies
+
+    def change_wave(self, mob_list):
+        self.mob_list = mob_list.copy()
 
     def spawn(self, enemy_list):
         if not self.mob_list:
@@ -155,9 +189,11 @@ class Enemy_base(RoadCell):
         mob = random.choice(list(self.mob_list.keys()))
 
         # Создаем врага (ты должен заменить BaseEnemy на свой класс врага)
-        enemy = BaseEnemy(self.pos)  # или другой конструктор, если нужен конкретный враг
-        enemy.type = mob  # можно сохранить имя типа моба
-        enemy_list.add(enemy)  # добавляем врага в группу (pygame.sprite.Group или список)
+        for en in self.enemies["enemies"]:
+            if en["name"] == mob:
+                enemy = BaseEnemy((self.pos[0], self.pos[1]), en["sprite"], en["width"], en["height"], en["frames"], en["gold"], en["speed"])  # или другой конструктор, если нужен конкретный враг
+                enemy.type = mob  # можно сохранить имя типа моба
+                enemy_list.add(enemy)  # добавляем врага в группу (pygame.sprite.Group или список)
 
         # Уменьшаем счетчик мобов
         self.mob_list[mob] -= 1
@@ -169,16 +205,6 @@ class Enemy_base(RoadCell):
             self.finished = True
 
 
-class FieldCell(Cell):
-    def __init__(self, pos, cellsize, image = "Content/Textures/Environment/Grass/spr_grass_02.png", tower_base = False):
-        if isinstance(image, str):
-            self.image = pygame.image.load(image)
-        else:
-            self.image = image
-        super().__init__(pos, cellsize, self.image)
-        self.tower = False
-        self.tower_base = tower_base
-
 class Background(pygame.sprite.Sprite):
     def __init__(self, w, h, color):
         super().__init__()
@@ -187,14 +213,17 @@ class Background(pygame.sprite.Sprite):
         self.image = pygame.Surface((self.width, self.height))
         self.image.fill(color)
         self.rect = self.image.get_rect()
-        self.path = "Test.json"
+        self.path = "settings.json"
         with open(self.path, 'r', encoding='utf-8') as file:
             self.map = json.load(file)
+        with open("Content/Textures/Enemies/Enemies.json", 'r', encoding='utf-8') as file:
+            self.enemies = json.load(file)
         self.cell_group = pygame.sprite.Group()
         self.road_group = pygame.sprite.Group()
         self.base_group = pygame.sprite.Group()
         self.decoration_group = pygame.sprite.Group()
-        self.base = ""
+        self.bases = []
+        self.wave = 1
 
         self.images = {}
 
@@ -216,24 +245,48 @@ class Background(pygame.sprite.Sprite):
         for cell in self.map["tilesets"]:
             self.images[str(cell["firstgid"])] = cell["source"]
 
+    def get_base(self):
+        return [(base.pos[0], base.pos[1] + 1) for base in self.bases]
+
+    def get_enemy_list(self, map, cur_wave):
+        self.enemy_list = {}
+        for wave in map["waves"]:
+            if wave["waveNumber"] == cur_wave:
+                for enemy in wave["enemies"]:
+                    self.enemy_list[enemy["type"]] = enemy["count"]
+
+    def gotowave(self, wave):
+        self.wave = wave
+    def spawn_enemies(self, enemy_list):
+        # Фильтруем доступные базы
+        available_bases = [base for base in self.bases if not base.finished]
+        if not available_bases:
+            return  # Все базы завершили спавн
+
+        # Выбираем случайную базу и спавним врага
+        base = random.choice(available_bases)
+        base.spawn(enemy_list)
+
     def draw_cells(self):
-        x = 0
-        y = 0
-        base = ()
+        self.get_enemy_list(self.map, 1)
         map_bg = self.map["layers"][0]["data"]
         map = self.map["layers"][1]["data"]
-        for cell in map_bg:
-            x += 1
-            if x > 35:
-                x -= 35
-                y += 1
+        for i, cell in enumerate(map_bg):
+            x = i % 35
+            y = i // 35
             if cell == 100:
-                base = (x, y)
-            if cell == 27:
+                base = Enemy_base((x, y), self.map["tileheight"] * 1.3, self.enemy_list, self.enemies,
+                                  self.images[str(cell)])
+                self.cell_group.add(base)
+                self.bases.append(base)
+            elif cell == 27:
                 tower = True
+                self.cell_group.add(
+                    FieldCell((x, y), self.map["tileheight"] * 1.3, self.images[str(cell)], tower_base=tower))
             else:
-                tower= False
-            self.cell_group.add(FieldCell((x-1, y), self.map["tileheight"]*1.3, self.images[str(cell)], tower_base=tower))
+                tower = False
+                self.cell_group.add(
+                    FieldCell((x, y), self.map["tileheight"] * 1.3, self.images[str(cell)], tower_base=tower))
         x = 0
         y = 0
         for cell in map:
@@ -242,16 +295,15 @@ class Background(pygame.sprite.Sprite):
                 x -= 35
                 y += 1
             if str(cell) in self.images.keys():
-                if cell == 14:
-                    self.base_group.add(BaseCell((x-1, y), self.map["tileheight"]*1.3, self.images[str(cell)]))
-                else:
-                    image = pygame.image.load(self.images[str(cell)])
-                    image_scaled = pygame.transform.scale(image, (self.map["tileheight"]*1.4, self.map["tileheight"]*1.4))
-                    if "Decoration" in self.images[str(cell)].split("/"):
-                        self.decoration_group.add(Decorations((x-1, y), self.map["tileheight"]*1.3, image_scaled))
-                    if "Grass" in self.images[str(cell)].split("/"):
-                        self.cell_group.add(FieldCell((x-1, y), self.map["tileheight"]*1.3, image_scaled))
-                    if "Roads" in self.images[str(cell)].split("/"):
-                        self.road_group.add(RoadCell((x-1, y), str(cell), self.map["tileheight"]*1.3, image=image_scaled))
+                if "Castle" in self.images[str(cell)].split("/"):
+                    self.base_group.add(BaseCell((x, y), self.map["tileheight"] * 1.3, self.images[str(cell)]))
+                image = pygame.image.load(self.images[str(cell)])
+                image_scaled = pygame.transform.scale(image, (self.map["tileheight"]*1.4, self.map["tileheight"]*1.4))
+                if "Decoration" in self.images[str(cell)].split("/"):
+                    self.decoration_group.add(Decorations((x-1, y), self.map["tileheight"]*1.3, image_scaled))
+                if "Grass" in self.images[str(cell)].split("/"):
+                    self.cell_group.add(FieldCell((x-1, y), self.map["tileheight"]*1.3, image_scaled))
+                if "Roads" in self.images[str(cell)].split("/"):
+                    self.road_group.add(RoadCell((x-1, y), str(cell), self.map["tileheight"]*1.3, image=image_scaled))
 
 
