@@ -1,12 +1,13 @@
 { "compressionlevel":-1,
  "height":35,
  "infinite":false,
-      "waves": [
+"waves": [
     {
       "waveNumber": 1,
       "enemies": [
-        {"type": "Летучая мышь", "count": 2},
-        {"type": "Гоблин", "count": 6}
+        {"type": "Летучая мышь", "count": 100},
+        {"type": "Гоблин", "count": 70},
+        {"type": "Зомби", "count": 60}
       ]
     },
     {

@@ -19,7 +19,8 @@ class Button(pygame.sprite.Sprite):
         # Прозрачный фон
         self.image = pygame.Surface(self.size, pygame.SRCALPHA)
         self.image = self.image.convert_alpha()
-        self.rect = self.image.get_rect(topleft=position)
+        self.rect = self.image.get_rect(center=position)
+
 
     def clicked(self):
         if not self.is_clicked:

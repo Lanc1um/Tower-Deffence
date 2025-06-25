@@ -191,7 +191,7 @@ class Enemy_base(FieldCell):
         # Создаем врага (ты должен заменить BaseEnemy на свой класс врага)
         for en in self.enemies["enemies"]:
             if en["name"] == mob:
-                enemy = BaseEnemy((self.pos[0], self.pos[1]), en["sprite"], en["width"], en["height"], en["frames"], en["gold"], en["speed"])  # или другой конструктор, если нужен конкретный враг
+                enemy = BaseEnemy((self.pos[0], self.pos[1]), en["sprite"], en["width"], en["height"], en["frames"], en["gold"], en["speed"], en["damage"])  # или другой конструктор, если нужен конкретный враг
                 enemy.type = mob  # можно сохранить имя типа моба
                 enemy_list.add(enemy)  # добавляем врага в группу (pygame.sprite.Group или список)
 
@@ -224,6 +224,7 @@ class Background(pygame.sprite.Sprite):
         self.decoration_group = pygame.sprite.Group()
         self.bases = []
         self.wave = 1
+        self.finished_spawning = False
 
         self.images = {}
 
@@ -235,7 +236,7 @@ class Background(pygame.sprite.Sprite):
         self.base_group.draw(screen)
         self.decoration_group.draw(screen)
 
-    def choose_level(self, level):
+    def choose_level(self, level = "map_1.json"):
         self.path = f"Content/Levels/{level}"
         with open(self.path, 'r', encoding='utf-8') as file:
             self.map = json.load(file)
@@ -255,10 +256,14 @@ class Background(pygame.sprite.Sprite):
                 for enemy in wave["enemies"]:
                     self.enemy_list[enemy["type"]] = enemy["count"]
 
-    def gotowave(self, wave):
-        self.wave = wave
     def spawn_enemies(self, enemy_list):
         # Фильтруем доступные базы
+        count = 0
+        for base in self.bases:
+            if base.finished:
+                count += 1
+        if count == len(self.bases):
+            self.finished_spawning = True
         available_bases = [base for base in self.bases if not base.finished]
         if not available_bases:
             return  # Все базы завершили спавн
@@ -275,14 +280,20 @@ class Background(pygame.sprite.Sprite):
             x = i % 35
             y = i // 35
             if cell == 100:
-                base = Enemy_base((x, y), self.map["tileheight"] * 1.3, self.enemy_list, self.enemies,
+                base = Enemy_base((x, y),
+                                  self.map["tileheight"] * 1.3,
+                                  self.enemy_list,
+                                  self.enemies,
                                   self.images[str(cell)])
                 self.cell_group.add(base)
                 self.bases.append(base)
             elif cell == 27:
                 tower = True
                 self.cell_group.add(
-                    FieldCell((x, y), self.map["tileheight"] * 1.3, self.images[str(cell)], tower_base=tower))
+                    FieldCell((x, y),
+                              self.map["tileheight"] * 1.3,
+                              self.images[str(cell)],
+                              tower_base=tower))
             else:
                 tower = False
                 self.cell_group.add(
@@ -305,5 +316,3 @@ class Background(pygame.sprite.Sprite):
                     self.cell_group.add(FieldCell((x-1, y), self.map["tileheight"]*1.3, image_scaled))
                 if "Roads" in self.images[str(cell)].split("/"):
                     self.road_group.add(RoadCell((x-1, y), str(cell), self.map["tileheight"]*1.3, image=image_scaled))
-
-

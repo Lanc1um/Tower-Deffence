@@ -5,8 +5,9 @@
     {
       "waveNumber": 1,
       "enemies": [
-        {"type": "Скелет", "count": 4},
-        {"type": "Призрак", "count": 2}
+        {"type": "Скелет", "count": 100},
+        {"type": "Призрак", "count": 70},
+        {"type": "Демон", "count": 40}
       ]
     },
     {

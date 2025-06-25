@@ -5,14 +5,16 @@
     {
       "waveNumber": 1,
       "enemies": [
-        {"type": "Слизень", "count": 6}
+        {"type": "Слизень", "count": 100},
+        {"type": "Большой слизень", "count": 50},
+        {"type": "Король слизней", "count": 20}
       ]
     },
     {
       "waveNumber": 2,
       "enemies": [
-        {"type": "Слизень", "count": 4},
-        {"type": "Большой слизень", "count": 2}
+        {"type": "Слизень", "count": 75},
+        {"type": "Большой слизень", "count": 25}
       ]
     },
     {

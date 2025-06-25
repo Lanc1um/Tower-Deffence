@@ -75,7 +75,7 @@ class Dummy(pygame.sprite.Sprite):
         pass
 
 class BaseEnemy(pygame.sprite.Sprite):
-    def __init__(self, position, image, width, height, sprites, money, speed, cellsize = 16, rotation = 0):
+    def __init__(self, position, image, width, height, sprites, money, speed, damage, cellsize = 16, rotation = 0):
         super().__init__()
         if isinstance(image, str):
             self.sprite_sheet = pygame.image.load(image).convert_alpha()
@@ -95,7 +95,7 @@ class BaseEnemy(pygame.sprite.Sprite):
                                frame,
                                self.sprite_width,
                                self.sprite_height,
-                               1.4,
+                               1,
                                (0, 0, 0))
             self.sprites.append(sprite)
         self.image = self.sprites[0]
@@ -112,13 +112,14 @@ class BaseEnemy(pygame.sprite.Sprite):
                           }
 
         self.rect = self.image.get_rect()
-        self.rect.x = position[0]*cellsize*1.3
-        self.rect.y = position[1]*cellsize*1.3
+        self.rect.x = position[0]*cellsize*1.3+2
+        self.rect.y = position[1]*cellsize*1.3+2
         self.rotation = rotation
         self.velx = 1
         self.vely = 0
         self.hp = 100
         self.money = money
+        self.damage = damage
 
     def move(self):
         self.rect.x += self.velx

@@ -100,6 +100,7 @@ class BaseTower(pygame.sprite.Sprite):
         self.cost = cost
         self.resize_image_proportionally()  # пропорциональное масштабирование
         self.rect = self.image.get_rect()
+        self.show_radius = False
         self.rect.midbottom = (
             int((self.pos[0] + 0.5) * self.cellsize * 1.3),
             int((self.pos[1] + 1) * self.cellsize * 1.3)
@@ -172,6 +173,12 @@ class BaseTower(pygame.sprite.Sprite):
             self.enemy_located = False
             return self.last_target.rect.center
 
+    def draw_attack_radius(self, screen):
+        center_x = self.rect.centerx
+        center_y = self.rect.centery
+
+        pygame.draw.circle(screen, (0, 100, 255), (center_x, center_y), self.reach, 1)
+
     def rotate(self, pos):
         center_x = self.rect.centerx
         center_y = self.rect.centery
@@ -197,6 +204,7 @@ class BaseTower(pygame.sprite.Sprite):
             self.rotation = 0
 
     def update(self):
+
         if self.enemy_located:
             self.shoot()
 
@@ -227,5 +235,7 @@ class BaseTower(pygame.sprite.Sprite):
         # Рисуем линию
         # pygame.draw.line(screen, pygame.color.Color("Green"), (center_x, center_y), (end_x, end_y), 5)
 
+        if self.show_radius:
+            self.draw_attack_radius(screen)
         screen.blit(self.image, (self.rect.x, self.rect.y))
         self.bullets.draw(screen)
