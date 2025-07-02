@@ -1,5 +1,5 @@
 import pygame
-class UI():
+class UI:
     def __init__(self, screen_size):
         super().__init__()
         self.win_width = screen_size[0]
