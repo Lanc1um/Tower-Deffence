@@ -1,20 +1,20 @@
 { "compressionlevel":-1,
  "height":35,
+  "waves_count": 3,
  "infinite":false,
     "waves": [
     {
       "waveNumber": 1,
       "enemies": [
-        {"type": "Слизень", "count": 100},
-        {"type": "Большой слизень", "count": 50},
-        {"type": "Король слизней", "count": 20}
+        {"type": "Слизень", "count": 5},
+        {"type": "Большой слизень", "count": 2},
+        {"type": "Король слизней", "count": 1}
       ]
     },
     {
       "waveNumber": 2,
       "enemies": [
-        {"type": "Слизень", "count": 75},
-        {"type": "Большой слизень", "count": 25}
+        {"type": "Слизень", "count": 1}
       ]
     },
     {

@@ -5,12 +5,14 @@ import functools
 import os
 import json
 
+
 from map import *
 from btn import *
 from Towers import *
 from Enemy import *
 from UI import *
 from Cards import *
+from Slider import *
 
 
 class Game():
@@ -19,17 +21,20 @@ class Game():
             self.settings = json.load(file)
         with open("Content/Textures/Towers/Towers.json", 'r', encoding='utf-8') as file:
             self.towers = json.load(file)
+        with open("Content/Textures/Towers/Effects.json", 'r', encoding='utf-8') as file:
+            self.effects = json.load(file)
         self.WIN_WIDTH = self.settings["graphics"]["resolution"]["width"]
         self.WIN_HEIGHT = self.settings["graphics"]["resolution"]["height"]
         pygame.init()
         pygame.mixer.init()
         pygame.mixer.music.load("Content/Music/flight.wav")
-
+        initial_volume = self.settings["audio"]["musicVolume"]
+        self.volume_slider = VolumeSlider(self.WIN_WIDTH//2-150, 200, 300, initial_value=initial_volume)
         # Установка громкости (0.0 до 1.0)
         if not self.settings["audio"]["mute"]:
-            pygame.mixer.music.set_volume(self.settings["audio"]["musicVolume"])
+            pygame.mixer.music.set_volume(initial_volume)
         else:
-            pygame.mixer.music.set_volume(self.settings["audio"]["musicVolume"])
+            pygame.mixer.music.set_volume(0)
         # Воспроизведение (циклично)
         pygame.mixer.music.play(-1)
         self.title = self.settings["game"]["title"]
@@ -41,21 +46,19 @@ class Game():
         self.bg = Background(self.WIN_WIDTH, self.WIN_HEIGHT, self.BACKGROUND_COLOR)
         self.window = "Start"
         self.fps = self.settings["graphics"]["fps"]
-        self.selecting_card = False
+        self.selecting = False
+        self.tower_selected = None
         self.button_group = pygame.sprite.Group()
         self.tower_group = pygame.sprite.Group()
         self.enemy_group = pygame.sprite.Group()
         self.enemies_killed = 0
 
         self.spawn_interval = 1000  # миллисекунды
-
         self.running = False
-
         self.ui = UI((self.WIN_WIDTH, self.WIN_HEIGHT))
 
-        for tower in self.towers["towers"]:
-            self.ui.add_card(Card(150, 200,tower["name"], tower["damage"], tower["attack_radius"], tower["cost"], tower["attack_speed"], tower["sprite"], tower["projectile_sprite"]))
-
+        self.can_start_wave = True
+        self.wave_started = False
 
         self.money = 500
 
@@ -80,8 +83,13 @@ class Game():
         bg_image = pygame.image.load("Content/Textures/UI/bg.jpg")
         bg_image = pygame.transform.scale(bg_image, (self.WIN_WIDTH, self.WIN_HEIGHT))
         self.screen.blit(bg_image, (0, 0))
+
         button_text = self.font.render("Settings page", True, pygame.color.Color("Black"))
-        self.screen.blit(button_text, (100, 100))
+        self.screen.blit(button_text, (self.WIN_WIDTH//2-button_text.get_width()//2, 100))
+
+        # Отрисовка ползунка
+        self.volume_slider.draw(self.screen)
+
         for btn in self.button_group.sprites():
             btn.draw(self.screen)
 
@@ -114,7 +122,7 @@ class Game():
         for btn in self.button_group.sprites():
             btn.draw(self.screen)
 
-    def draw_game_screen(self):
+    def draw_game_screen(self, dt=0):
         for tower in self.tower_group.sprites():
             tower.draw(self.screen)
             tower.locate(tower.find_target(self.enemy_group))
@@ -122,10 +130,18 @@ class Game():
             tower.bullets.update()
             bullet_col = pygame.sprite.groupcollide(tower.bullets, self.enemy_group, True, False)
 
-            if len(bullet_col) > 0:
-                for bullet, enemy_group in bullet_col.items():
-                    for enemy in enemy_group:
-                        self.money += bullet.hit(enemy)
+            if bullet_col:
+                for bullet, _ in bullet_col.items():
+                    hit_pos = bullet.rect.center  # центр попадания пули
+                    for enemy in self.enemy_group:
+                        distance = math.hypot(enemy.rect.centerx - hit_pos[0], enemy.rect.centery - hit_pos[1])
+                        if distance <= bullet.aoe:
+                            if bullet.effect != "":
+                                enemy.add_effect(bullet.effect, bullet.effect_time)
+                            self.money += bullet.hit(enemy)
+
+                    # (необязательно) нарисовать круг для визуализации зоны поражения
+                    pygame.draw.circle(self.screen, (255, 0, 0), hit_pos, bullet.aoe, 2)
 
         for enemy in self.enemy_group.sprites():
             if enemy.is_alive():
@@ -143,9 +159,6 @@ class Game():
         else:
             self.bg.base_group.update()
 
-        # if not self.bg.base_group.sprites()[0].is_alive():
-        #     self.running = False
-
         for enemy, block_list in collision.items():
             dest = ""
             count = 0
@@ -158,7 +171,7 @@ class Game():
             if dest != "":
                 enemy.rotate(dest)
 
-            enemy.update()
+            enemy.update(dt)
             enemy.draw(self.screen)
 
         # Получаем параметры
@@ -181,6 +194,11 @@ class Game():
                         self.money -= tower.cost
 
     def quit(self):
+        # Сохраняем громкость перед выходом
+        self.settings["audio"]["musicVolume"] = self.volume_slider.get_value()
+        with open("settings.json", 'w', encoding='utf-8') as file:
+            json.dump(self.settings, file, ensure_ascii=False, indent=4)
+
         print("QUIT")
         self.running = False
 
@@ -201,12 +219,17 @@ class Game():
                                   "Начать",
                                   font=self.font,
                                   on_click=functools.partial(self.change_screen, "Levels"))
-            quit_button = Button((self.WIN_WIDTH//2, 300),
+            setting_button = Button((self.WIN_WIDTH//2, 300),
+                                    (300, 100),
+                                    "Настройки",
+                                    font=self.font,
+                                    on_click=functools.partial(self.change_screen, "Settings"))
+            quit_button = Button((self.WIN_WIDTH//2, 400),
                                  (300, 100),
                                  "Выйти",
                                  font=self.font,
                                  on_click=self.quit)
-            self.button_group.add(start_button, quit_button)
+            self.button_group.add(start_button, setting_button, quit_button)
 
         elif target_screen == "Levels":
             c = 0
@@ -240,6 +263,7 @@ class Game():
     def mainloop(self):
         self.running = True
         clock = pygame.time.Clock()
+        dt = clock.tick(self.fps)
 
         self.selecting_card = False
 
@@ -249,12 +273,14 @@ class Game():
             self.screen.fill(pygame.color.Color("White"))
 
             current_time = pygame.time.get_ticks()
-            if self.window == "Game" and current_time - last_spawn_time > self.spawn_interval:
+            if self.window == "Game" and current_time - last_spawn_time > self.spawn_interval and self.wave_started:
                 self.bg.spawn_enemies(self.enemy_group)
                 last_spawn_time = current_time
 
 
             for event in pygame.event.get():
+                if self.window == "Settings":
+                    self.volume_slider.handle_event(event)
                 if event.type == pygame.QUIT:
                     self.quit()
                 if self.bg.base_group.sprites():
@@ -266,37 +292,86 @@ class Game():
                     if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
                         self.quit()
 
+                if event.type == 768 and event.key == pygame.K_SPACE:
+                    if self.can_start_wave:
+                        self.wave_started = True
+                        self.can_start_wave = False
+
                 if event.type == 1026 and event.button == 1:
                     if self.window == "Game":
-                        if self.selecting_card:
+                        clicked_something = False
+
+                        if self.selecting:
                             clicked_card = self.ui.handle_click(event.pos)
                             if clicked_card:
-                                self.ui.hide_cards()
-                                self.add_tower(BaseTower(self.place,
-                                                         clicked_card.title,
-                                                         clicked_card.damage,
-                                                         clicked_card.attack_radius,
-                                                         clicked_card.cost,
-                                                         clicked_card.attack_speed,
-                                                         clicked_card.orig_path,
-                                                         clicked_card.proj_path))
-                                self.selecting_card = False
+                                if self.tower_selected:
+                                    if self.tower_selected.upgrades_left > 0:
+                                        if clicked_card.upgrade_field == "damage":
+                                            self.tower_selected.damage = clicked_card.damage
+                                        if clicked_card.upgrade_field == "attack_speed":
+                                            self.tower_selected.attack_speed = clicked_card.attack_speed
+                                        if clicked_card.upgrade_field == "attack_radius":
+                                            self.tower_selected.reach = clicked_card.attack_radius
+                                        self.tower_selected.upgrades_left -= 1
+                                        self.selecting = False
+                                        self.tower_selected.show_radius = False
+                                        if self.tower_selected:
+                                            self.tower_selected.show_radius = False
+                                        self.tower_selected = None
+                                        self.ui.hide_upgrade_cards()
+                                else:
+                                    self.ui.hide_buy_cards()
+                                    self.add_tower(BaseTower(self.place,
+                                                             clicked_card.title,
+                                                             clicked_card.damage,
+                                                             clicked_card.attack_radius,
+                                                             clicked_card.cost,
+                                                             clicked_card.attack_speed,
+                                                             clicked_card.orig_path,
+                                                             clicked_card.proj_path,
+                                                             clicked_card.effect,
+                                                             clicked_card.effect_time))
+                                    self.selecting = False
+                                    self.place = None
                         else:
                             for cell in self.bg.cell_group.sprites():
                                 if cell.rect.collidepoint(event.pos):
+                                    clicked_something = True
                                     if cell.tower_base and not cell.tower:
                                         self.place = cell.pos
-                                        self.ui.show_cards()
-                                        self.selecting_card = True
+                                        self.ui.generate_buy_cards(self.towers, self.effects)
+                                        self.ui.show_buy_cards()
+                                        self.selecting = True
+                                        if self.tower_selected:
+                                            self.tower_selected.show_radius = False
+                                        self.tower_selected = None
+                                    elif cell.tower_base and cell.tower:
+                                        for tower in self.tower_group.sprites():
+                                            if pygame.sprite.collide_rect(cell, tower):
+                                                self.tower_selected = tower
+                                                self.tower_selected.show_radius = True
+                                                self.ui.generate_upgrade_cards(self.tower_selected)
+                                                self.ui.show_upgrade_cards()
+                                                self.selecting = True
+                                    else:
+                                        self.selecting = False
+                                        if self.tower_selected:
+                                            self.tower_selected.show_radius = False
+                                        self.tower_selected = None
+                                        self.ui.hide_buy_cards()
+                                        self.ui.hide_upgrade_cards()
 
-
+                        if not clicked_something:
+                            self.selecting = False
+                            if self.tower_selected:
+                                self.tower_selected.show_radius = False
+                            self.tower_selected = None
+                            self.place = None
+                            self.ui.hide_buy_cards()
+                            self.ui.hide_upgrade_cards()
                     for button in self.button_group.sprites():
                         if button.rect.collidepoint(event.pos):
                             button.clicked()
-
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_DOWN:
-                        self.ui.show_cards()
 
             self.bg.update()
             self.bg.draw(self.screen)
@@ -306,13 +381,18 @@ class Game():
             if self.window == "Settings":
                 self.draw_settings_menu()
             if self.window == "Game":
+                if self.bg.finished_spawning:
+                    if len(self.enemy_group) == 0:
+                        if self.bg.wave == self.bg.map["waves_count"]:
+                            self.show_end_screen(self.screen, "win", (self.WIN_WIDTH, self.WIN_HEIGHT))
+                        else:
+                            self.can_start_wave = True
+                            self.wave_started = False
+
                 if self.bg.base_group.sprites()[0].hp > 0:
-                    if self.bg.finished_spawning and len(self.enemy_group) == 0:
-                        self.show_end_screen(self.screen, "win", (self.WIN_WIDTH, self.WIN_HEIGHT))
-                    else:
-                        self.draw_game_screen()
+                    self.draw_game_screen(dt)
                 else:
-                    self.show_end_screen("lost", (self.WIN_WIDTH, self.WIN_HEIGHT))
+                    self.show_end_screen("Defeat", (self.WIN_WIDTH, self.WIN_HEIGHT))
             if self.window == "Levels":
                 self.draw_level_choice_menu()
 

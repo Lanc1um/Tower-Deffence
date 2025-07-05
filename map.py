@@ -272,6 +272,18 @@ class Background(pygame.sprite.Sprite):
         base = random.choice(available_bases)
         base.spawn(enemy_list)
 
+    def update_wave(self):
+        if self.finished_spawning:
+            self.wave += 1
+            self.finished_spawning = False
+            print(f"Wave {self.wave} started!")
+
+            self.get_enemy_list(self.map, self.wave)
+
+            for base in self.bases:
+                base.change_wave(self.enemy_list)
+                base.finished = False
+
     def draw_cells(self):
         self.get_enemy_list(self.map, 1)
         map_bg = self.map["layers"][0]["data"]

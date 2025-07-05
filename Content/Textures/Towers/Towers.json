@@ -4,34 +4,53 @@
       "name": "Башня лучника",
       "damage": 15,
       "attack_radius": 75,
+      "damage_radius": 5,
       "cost": 65,
       "attack_speed": 0.6,
       "sprite": "Content/Textures/Towers/Combat Towers/spr_tower_archer.png",
       "projectile_sprite": "Content/Textures/Towers/Combat Towers Projectiles/spr_tower_archer_projectile.png",
       "width": 16,
-      "height": 23
+      "height": 23,
+      "effect": ""
     },
     {
       "name": "Мортира",
       "damage": 35,
       "attack_radius": 55,
+      "damage_radius": 50,
       "cost": 150,
       "attack_speed": 1.5,
       "sprite": "Content/Textures/Towers/Combat Towers/spr_tower_cannon.png",
       "projectile_sprite": "Content/Textures/Towers/Combat Towers Projectiles/spr_tower_cannon_projectile.png",
       "width": 18,
-      "height": 30
+      "height": 30,
+      "effect": ""
     },
     {
       "name": "Арбалет",
       "damage": 25,
       "attack_radius": 150,
+      "damage_radius": 5,
       "cost": 80,
       "attack_speed": 0.9,
       "sprite": "Content/Textures/Towers/Combat Towers/spr_tower_crossbow.png",
       "projectile_sprite": "Content/Textures/Towers/Combat Towers Projectiles/spr_tower_crossbow_projectile.png",
       "width": 18,
-      "height": 33
+      "height": 33,
+      "effect": ""
+    },
+    {
+      "name": "Ледяной маг",
+      "damage": 1,
+      "attack_radius": 300,
+      "damage_radius": 30,
+      "cost": 1,
+      "attack_speed": 1,
+      "sprite": "Content/Textures/Towers/Combat Towers/spr_tower_ice_wizard.png",
+      "projectile_sprite": "Content/Textures/Towers/Combat Towers Projectiles/spr_tower_ice_wizard_projectile.png",
+      "width": 16,
+      "height": 26,
+      "effect": "freeze"
     }
   ]
 }
