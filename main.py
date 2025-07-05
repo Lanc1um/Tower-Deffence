@@ -57,6 +57,8 @@ class Game():
         self.running = False
         self.ui = UI((self.WIN_WIDTH, self.WIN_HEIGHT))
 
+        self.can_start_wave = True
+        self.wave_started = False
 
         self.money = 500
 
@@ -271,7 +273,7 @@ class Game():
             self.screen.fill(pygame.color.Color("White"))
 
             current_time = pygame.time.get_ticks()
-            if self.window == "Game" and current_time - last_spawn_time > self.spawn_interval:
+            if self.window == "Game" and current_time - last_spawn_time > self.spawn_interval and self.wave_started:
                 self.bg.spawn_enemies(self.enemy_group)
                 last_spawn_time = current_time
 
@@ -289,6 +291,11 @@ class Game():
                 if self.bg.finished_spawning and len(self.enemy_group) == 0:
                     if event.type == pygame.KEYDOWN or event.type == pygame.MOUSEBUTTONDOWN:
                         self.quit()
+
+                if event.type == 768 and event.key == pygame.K_SPACE:
+                    if self.can_start_wave:
+                        self.wave_started = True
+                        self.can_start_wave = False
 
                 if event.type == 1026 and event.button == 1:
                     if self.window == "Game":
@@ -374,11 +381,16 @@ class Game():
             if self.window == "Settings":
                 self.draw_settings_menu()
             if self.window == "Game":
+                if self.bg.finished_spawning:
+                    if len(self.enemy_group) == 0:
+                        if self.bg.wave == self.bg.map["waves_count"]:
+                            self.show_end_screen(self.screen, "win", (self.WIN_WIDTH, self.WIN_HEIGHT))
+                        else:
+                            self.can_start_wave = True
+                            self.wave_started = False
+
                 if self.bg.base_group.sprites()[0].hp > 0:
-                    if self.bg.finished_spawning and len(self.enemy_group) == 0:
-                        self.show_end_screen(self.screen, "Victory", (self.WIN_WIDTH, self.WIN_HEIGHT))
-                    else:
-                        self.draw_game_screen(dt)
+                    self.draw_game_screen(dt)
                 else:
                     self.show_end_screen("Defeat", (self.WIN_WIDTH, self.WIN_HEIGHT))
             if self.window == "Levels":

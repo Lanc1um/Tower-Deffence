@@ -1,5 +1,6 @@
 { "compressionlevel":-1,
  "height":35,
+  "waves_count": 3,
  "infinite":false,
         "waves": [
     {
