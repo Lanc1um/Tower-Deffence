@@ -42,7 +42,7 @@ class UI:
         upgrades = [
             {
                 "title": "Улучшить урон",
-                "damage": int(tower.damage * 1.5),
+                "damage": int(tower.damage * 1.2),
                 "attack_radius": tower.reach,
                 "attack_speed": tower.attack_speed,
                 "cost": int(base_cost * 0.5),
@@ -51,7 +51,7 @@ class UI:
             {
                 "title": "Увеличить радиус",
                 "damage": tower.damage,
-                "attack_radius": int(tower.reach * 1.3),
+                "attack_radius": int(tower.reach * 1.1),
                 "attack_speed": tower.attack_speed,
                 "cost": int(base_cost * 0.4),
                 "field": "attack_radius"
