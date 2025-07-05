@@ -13,8 +13,7 @@
     {
       "waveNumber": 2,
       "enemies": [
-        {"type": "Слизень", "count": 75},
-        {"type": "Большой слизень", "count": 25}
+        {"type": "Слизень", "count": 5}
       ]
     },
     {

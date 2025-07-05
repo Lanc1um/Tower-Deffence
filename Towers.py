@@ -4,7 +4,7 @@ from Enemy import *
 import time
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, pos, image, damage, target=None, speed=20, rotation=0, homing_distance=100):
+    def __init__(self, pos, image, damage, effect, effect_time, target=None, speed=20, rotation=0, homing_distance=100):
         super().__init__()
         self.original_image = pygame.image.load(image).convert_alpha()
         self.image = self.original_image  # временно
@@ -13,6 +13,9 @@ class Bullet(pygame.sprite.Sprite):
         self.target = target
         self.homing_distance = homing_distance
         self.damage = damage
+        self.aoe = 10
+        self.effect = effect
+        self.effect_time = effect_time
 
         angle_rad = math.radians(rotation + 90)
         self.vel = (
@@ -68,10 +71,10 @@ class Bullet(pygame.sprite.Sprite):
         screen.blit(self.image, self.rect)
 
 
-
 class BaseTower(pygame.sprite.Sprite):
-    def __init__(self, position, title, damage, attack_radius, cost, attack_speed, image_path, projectile, cellsize=16, rotation=0):
+    def __init__(self, position, title, damage, attack_radius, cost, attack_speed, image_path, projectile, effect, effect_time, cellsize=16, rotation=0):
         super().__init__()
+        self.orig_path = image_path
         self.original_image = pygame.image.load(image_path).convert_alpha()  # загружаем оригинал
         self.image = self.original_image  # временно (будет заменена после scale)
 
@@ -90,6 +93,7 @@ class BaseTower(pygame.sprite.Sprite):
         self.rect.y = self.pos[1] * self.cellsize * 1.3
 
         self.rotation = rotation
+        self.upgrades_left = 5
         self.reach = attack_radius
         self.enemy_located = False
         self.target = None
@@ -101,6 +105,9 @@ class BaseTower(pygame.sprite.Sprite):
         self.resize_image_proportionally()  # пропорциональное масштабирование
         self.rect = self.image.get_rect()
         self.show_radius = False
+        self.effect = effect
+        self.effect_time = effect_time
+
         self.rect.midbottom = (
             int((self.pos[0] + 0.5) * self.cellsize * 1.3),
             int((self.pos[1] + 1) * self.cellsize * 1.3)
@@ -177,7 +184,17 @@ class BaseTower(pygame.sprite.Sprite):
         center_x = self.rect.centerx
         center_y = self.rect.centery
 
-        pygame.draw.circle(screen, (0, 100, 255), (center_x, center_y), self.reach, 1)
+        # Создаем времную поверхность с альфа-каналом (прозрачность)
+        radius_surface = pygame.Surface((self.reach * 2, self.reach * 2), pygame.SRCALPHA)
+
+        # Рисуем полупрозрачный круг
+        pygame.draw.circle(radius_surface, (0, 100, 255, 60), (self.reach, self.reach), self.reach)
+
+        # Рисуем обводку круга
+        pygame.draw.circle(radius_surface, (0, 100, 255, 200), (self.reach, self.reach), self.reach, 1)
+
+        # Отрисовываем на экран с учётом центра
+        screen.blit(radius_surface, (center_x - self.reach, center_y - self.reach))
 
     def rotate(self, pos):
         center_x = self.rect.centerx
@@ -218,6 +235,8 @@ class BaseTower(pygame.sprite.Sprite):
                 target=self.target,
                 rotation=self.rotation,
                 damage=self.damage,
+                effect=self.effect,
+                effect_time=self.effect_time,
                 homing_distance=50  # дистанция включения самонаведения
             )
             self.bullets.add(bullet)

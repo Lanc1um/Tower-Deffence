@@ -273,7 +273,7 @@ class Background(pygame.sprite.Sprite):
         base.spawn(enemy_list)
 
     def draw_cells(self):
-        self.get_enemy_list(self.map, 1)
+        self.get_enemy_list(self.map, 2)
         map_bg = self.map["layers"][0]["data"]
         map = self.map["layers"][1]["data"]
         for i, cell in enumerate(map_bg):

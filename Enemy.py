@@ -1,5 +1,6 @@
 import pygame
 import math
+import json
 
 def get_image(sheet, frame, width, height, scale, color, row=0):
     """Извлекает отдельный спрайт из спрайт листа.
@@ -95,7 +96,7 @@ class BaseEnemy(pygame.sprite.Sprite):
                                frame,
                                self.sprite_width,
                                self.sprite_height,
-                               1,
+                               1.3,
                                (0, 0, 0))
             self.sprites.append(sprite)
         self.image = self.sprites[0]
@@ -111,23 +112,56 @@ class BaseEnemy(pygame.sprite.Sprite):
                           "down":(270, 0, self.speed),
                           }
 
+        self.effects = {"freeze": 0,
+                        "burn": 0}
+
+        with open("Content/Textures/Towers/Effects.json", 'r', encoding='utf-8') as file:
+            self.effect_list = json.load(file)
+        self.effect_list = self.effect_list["effects"]
+
         self.rect = self.image.get_rect()
         self.rect.x = position[0]*cellsize*1.3+2
         self.rect.y = position[1]*cellsize*1.3+2
+        self.posx = float(self.rect.x)
+        self.posy = float(self.rect.y)
         self.rotation = rotation
         self.velx = 1
         self.vely = 0
+        self.normal_velx = 1
+        self.normal_vely = 0
         self.hp = 100
         self.money = money
         self.damage = damage
 
     def move(self):
-        self.rect.x += self.velx
-        self.rect.y += self.vely
+        self.posx += self.velx
+        self.posy += self.vely
+        self.rect.x = int(self.posx)
+        self.rect.y = int(self.posy)
 
-    def update(self):
+    def add_effect(self, effect, time):
+        self.effects[effect] = time
+
+    def update(self, dt=0):
         self.move()
         now = pygame.time.get_ticks()
+        speed_modifier = 1.0
+        for effect, time_left in self.effects.items():
+            if time_left > 0:
+                # Найдём соответствующий эффект из effect_list
+                for e in self.effect_list:
+                    if e["name"] == effect:
+                        speed_modifier *= e["speed_modifier"]  # или min(...), если не хочешь комбинировать
+
+                self.effects[effect] -= dt
+                if self.effects[effect] <= 0:
+                    self.effects[effect] = 0
+
+        self.velx = self.normal_velx * speed_modifier
+        self.vely = self.normal_vely * speed_modifier
+
+        # print(self.velx, self.vely)
+
         if now - self.last_update > self.animation_speed:
             self.last_update = now
             self.current_frame = (self.current_frame + 1) % len(self.sprites)
@@ -135,8 +169,11 @@ class BaseEnemy(pygame.sprite.Sprite):
 
     def rotate(self, dest):
         self.rotation = self.dest_list[dest][0]
-        self.velx = self.dest_list[dest][1]
-        self.vely = self.dest_list[dest][2]
+        # self.velx = self.dest_list[dest][1]
+        self.normal_velx = self.dest_list[dest][1]
+        # self.vely = self.dest_list[dest][2]
+        self.normal_vely = self.dest_list[dest][2]
+
 
     def draw(self, screen):
         # Начальная точка линии в центре спрайта
