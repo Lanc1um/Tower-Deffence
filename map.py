@@ -225,6 +225,7 @@ class Background(pygame.sprite.Sprite):
         self.bases = []
         self.wave = 1
         self.finished_spawning = False
+        self.flag = False
 
         self.images = {}
 
@@ -236,8 +237,9 @@ class Background(pygame.sprite.Sprite):
         self.base_group.draw(screen)
         self.decoration_group.draw(screen)
 
-    def choose_level(self, level = "map_1.json"):
+    def choose_level(self, level = "map_1.json", flag = False):
         self.path = f"Content/Levels/{level}"
+        self.flag = flag
         with open(self.path, 'r', encoding='utf-8') as file:
             self.map = json.load(file)
             self.get_images()
@@ -251,10 +253,17 @@ class Background(pygame.sprite.Sprite):
 
     def get_enemy_list(self, map, cur_wave):
         self.enemy_list = {}
-        for wave in map["waves"]:
-            if wave["waveNumber"] == cur_wave:
-                for enemy in wave["enemies"]:
-                    self.enemy_list[enemy["type"]] = enemy["count"]
+        if self.flag:
+            for wave in map["waves"]:
+                if wave["waveNumber"] == "secret":
+                    for enemy in wave["enemies"]:
+                        self.enemy_list[enemy["type"]] = enemy["count"]
+        else:
+            for wave in map["waves"]:
+                if wave["waveNumber"] != "secret":
+                    if wave["waveNumber"] == cur_wave:
+                        for enemy in wave["enemies"]:
+                            self.enemy_list[enemy["type"]] = enemy["count"]
 
     def spawn_enemies(self, enemy_list):
         # Фильтруем доступные базы

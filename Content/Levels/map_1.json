@@ -17,12 +17,29 @@
         {"type": "Слизень", "count": 1}
       ]
     },
-    {
-      "waveNumber": 3,
+      {
+        "waveNumber": 3,
+        "enemies": [
+          {
+            "type": "Слизень",
+            "count": 3
+          },
+          {
+            "type": "Большой слизень",
+            "count": 3
+          },
+          {
+            "type": "Король слизней",
+            "count": 1
+          }
+        ]
+      },
+      {
+      "waveNumber": "secret",
       "enemies": [
-        {"type": "Слизень", "count": 3},
-        {"type": "Большой слизень", "count": 3},
-        {"type": "Король слизней", "count": 1}
+        {"type": "Слизень", "count": 999},
+        {"type": "Большой слизень", "count": 999},
+        {"type": "Король слизней", "count": 999}
       ]
     }
   ],
