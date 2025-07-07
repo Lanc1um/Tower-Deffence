@@ -1,10 +1,14 @@
 {
   "effects": [
     {
+      "name": "slow",
+      "duration_ms": 3500,
+      "speed_modifier": 0.375
+    },
+    {
       "name": "freeze",
-      "description": "Замораживает врага, замедляя его движение",
-      "duration_ms": 2000,
-      "speed_modifier": 0.5
+      "duration_ms": 3000,
+      "speed_modifier": 0
     }
   ]
 }

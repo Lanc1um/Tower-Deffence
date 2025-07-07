@@ -4,7 +4,7 @@ from Enemy import *
 import time
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, pos, image, damage, effect, effect_time, target=None, speed=20, rotation=0, homing_distance=100):
+    def __init__(self, pos, image, damage, effect, effect_time, aoe, target=None, speed=20, rotation=0, homing_distance=100):
         super().__init__()
         self.original_image = pygame.image.load(image).convert_alpha()
         self.image = self.original_image  # временно
@@ -13,7 +13,7 @@ class Bullet(pygame.sprite.Sprite):
         self.target = target
         self.homing_distance = homing_distance
         self.damage = damage
-        self.aoe = 10
+        self.aoe = aoe
         self.effect = effect
         self.effect_time = effect_time
 
@@ -72,14 +72,14 @@ class Bullet(pygame.sprite.Sprite):
 
 
 class BaseTower(pygame.sprite.Sprite):
-    def __init__(self, position, title, damage, attack_radius, cost, attack_speed, image_path, projectile, effect, effect_time, cellsize=16, rotation=0):
+    def __init__(self, position, title, damage, attack_radius, cost, attack_speed, image_path, projectile, effect, effect_time, aoe, cellsize=16, rotation=0):
         super().__init__()
         self.orig_path = image_path
         self.original_image = pygame.image.load(image_path).convert_alpha()  # загружаем оригинал
         self.image = self.original_image  # временно (будет заменена после scale)
 
         self.cellsize = cellsize
-        self.scale_factor = 2  # увеличим башню на 30% по сравнению с размером клетки
+        self.scale_factor = 2
 
 
         self.pos = position
@@ -102,11 +102,13 @@ class BaseTower(pygame.sprite.Sprite):
         self.attack_speed = attack_speed
         self.last_shot = 0
         self.cost = cost
-        self.resize_image_proportionally()  # пропорциональное масштабирование
+        self.sell_price = cost//2
+        self.resize_image_proportionally()
         self.rect = self.image.get_rect()
         self.show_radius = False
         self.effect = effect
         self.effect_time = effect_time
+        self.aoe = aoe
 
         self.rect.midbottom = (
             int((self.pos[0] + 0.5) * self.cellsize * 1.3),
@@ -237,6 +239,7 @@ class BaseTower(pygame.sprite.Sprite):
                 damage=self.damage,
                 effect=self.effect,
                 effect_time=self.effect_time,
+                aoe=self.aoe,
                 homing_distance=50  # дистанция включения самонаведения
             )
             self.bullets.add(bullet)

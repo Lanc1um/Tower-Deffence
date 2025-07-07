@@ -1,30 +1,53 @@
 { "compressionlevel":-1,
  "height":35,
-  "waves_count": 3,
+  "waves_count": 5,
  "infinite":false,
-        "waves": [
+  "waves": [
     {
       "waveNumber": 1,
       "enemies": [
-        {"type": "Скелет", "count": 100},
-        {"type": "Призрак", "count": 70},
-        {"type": "Демон", "count": 40}
+        {"type": "Скелет", "count": 20},
+        {"type": "Призрак", "count": 5}
       ]
     },
     {
       "waveNumber": 2,
       "enemies": [
-        {"type": "Скелет", "count": 3},
-        {"type": "Призрак", "count": 3},
+        {"type": "Скелет", "count": 35},
+        {"type": "Призрак", "count": 10},
         {"type": "Демон", "count": 1}
       ]
     },
     {
       "waveNumber": 3,
       "enemies": [
-        {"type": "Скелет", "count": 2},
-        {"type": "Призрак", "count": 4},
-        {"type": "Демон", "count": 2}
+        {"type": "Скелет", "count": 50},
+        {"type": "Призрак", "count": 25},
+        {"type": "Демон", "count": 3}
+      ]
+    },
+     {
+      "waveNumber": 4,
+      "enemies": [
+        {"type": "Скелет", "count": 75},
+        {"type": "Призрак", "count": 50},
+        {"type": "Демон", "count": 10}
+      ]
+    },
+    {
+      "waveNumber": 5,
+      "enemies": [
+        {"type": "Скелет", "count": 100},
+        {"type": "Призрак", "count": 75},
+        {"type": "Демон", "count": 25}
+      ]
+    },
+    {
+      "waveNumber": "secret",
+      "enemies": [
+        {"type": "Скелет", "count": 999},
+        {"type": "Призрак", "count": 999},
+        {"type": "Демон", "count": 999}
       ]
     }
   ],

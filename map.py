@@ -191,7 +191,7 @@ class Enemy_base(FieldCell):
         # Создаем врага (ты должен заменить BaseEnemy на свой класс врага)
         for en in self.enemies["enemies"]:
             if en["name"] == mob:
-                enemy = BaseEnemy((self.pos[0], self.pos[1]), en["sprite"], en["width"], en["height"], en["frames"], en["gold"], en["speed"], en["damage"])  # или другой конструктор, если нужен конкретный враг
+                enemy = BaseEnemy((self.pos[0], self.pos[1]), en["sprite"], en["width"], en["height"], en["frames"], en["gold"], en["speed"], en["damage"], en["hp"])  # или другой конструктор, если нужен конкретный враг
                 enemy.type = mob  # можно сохранить имя типа моба
                 enemy_list.add(enemy)  # добавляем врага в группу (pygame.sprite.Group или список)
 

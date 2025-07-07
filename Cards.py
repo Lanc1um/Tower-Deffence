@@ -1,7 +1,7 @@
 import pygame
 class Card:
     def __init__(self, width, height, title, damage, attack_radius, cost, attack_speed,
-                 image_path, proj_path, effect, effect_time, card_type="buy", upgrade_field=None):
+                 image_path, proj_path, effect, effect_time, aoe, card_type="buy", upgrade_field=None, base_damage = 0, base_speed = 0, base_range = 0):
         self.rect = pygame.Rect(0, 0, width, height)
         self.title = title
         self.damage = damage
@@ -14,6 +14,10 @@ class Card:
         self.effect_time = effect_time
         self.card_type = card_type  # "buy" или "upgrade"
         self.upgrade_field = upgrade_field  # например, "damage", "attack_radius", "attack_speed"
+        self.aoe = aoe
+        self.base_damage = base_damage
+        self.base_speed = base_speed
+        self.base_range = base_range
 
         self.original_image = pygame.image.load(image_path).convert_alpha()
         self.image = self.original_image
@@ -56,11 +60,11 @@ class Card:
         if self.card_type == "upgrade":
             # Показываем только изменяемый параметр
             if self.upgrade_field == "damage":
-                stat = f"Урон: {self.damage}"
+                stat = f"Урон: {self.base_damage} -> {self.damage}"
             elif self.upgrade_field == "attack_radius":
-                stat = f"Радиус: {self.attack_radius}"
+                stat = f"Радиус: {self.base_range} -> {self.attack_radius}"
             elif self.upgrade_field == "attack_speed":
-                stat = f"Скорость: {self.attack_speed}"
+                stat = f"Скорость: {self.base_speed} -> {self.attack_speed}"
             else:
                 stat = "Улучшение"
             stat_surface = self.font.render(stat, True, pygame.Color("black"))
@@ -69,7 +73,7 @@ class Card:
             cost_surface = self.font.render(f"Цена: {self.cost}", True, pygame.Color("black"))
             surface.blit(cost_surface, (self.rect.x + 10, base_y + 25))
 
-        else:
+        if self.card_type == "buy":
             # Показываем все параметры
             stats = [
                 f"Урон: {self.damage}",
@@ -80,3 +84,8 @@ class Card:
             for i, stat in enumerate(stats):
                 stat_surface = self.font.render(stat, True, pygame.Color("black"))
                 surface.blit(stat_surface, (self.rect.x + 10, base_y + i * 20))
+
+        if self.card_type == "sell":
+            cost_text = f"Цена продажи: {self.cost}"
+            cost_surf = self.font.render(cost_text, True, pygame.Color("black"))
+            surface.blit(cost_surf, (self.rect.x + 10, base_y))
