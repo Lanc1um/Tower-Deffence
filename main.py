@@ -65,6 +65,8 @@ class Game():
         self.game_finished = False
         self.wave = 0
 
+        self.start_time = pygame.time.get_ticks()
+
         self.money = 300
 
         self.level_path = 'Content/Levels'
@@ -73,6 +75,7 @@ class Game():
         self.levels = [f for f in files if os.path.isfile(os.path.join(self.level_path, f))]
 
         self.change_screen("Start")
+
         self.mainloop()
 
     def draw_start_menu(self):
@@ -297,7 +300,12 @@ class Game():
 
             current_time = pygame.time.get_ticks()
             if self.window == "Game" and current_time - last_spawn_time > self.spawn_interval and self.wave_started:
-                self.bg.spawn_enemies(self.enemy_group)
+
+                if self.secret_flag:
+                    multy = max((current_time - self.start_time) / 60000, 1)
+                else:
+                    multy = 1
+                self.bg.spawn_enemies(self.enemy_group, multy)
                 last_spawn_time = current_time
 
 

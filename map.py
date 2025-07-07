@@ -180,27 +180,23 @@ class Enemy_base(FieldCell):
     def change_wave(self, mob_list):
         self.mob_list = mob_list.copy()
 
-    def spawn(self, enemy_list):
+    def spawn(self, enemy_list, multy = 1):
         if not self.mob_list:
             self.finished = True
             return
 
-        # Выбираем случайного моба из оставшихся
         mob = random.choice(list(self.mob_list.keys()))
 
-        # Создаем врага (ты должен заменить BaseEnemy на свой класс врага)
         for en in self.enemies["enemies"]:
             if en["name"] == mob:
-                enemy = BaseEnemy((self.pos[0], self.pos[1]), en["sprite"], en["width"], en["height"], en["frames"], en["gold"], en["speed"], en["damage"], en["hp"])  # или другой конструктор, если нужен конкретный враг
-                enemy.type = mob  # можно сохранить имя типа моба
-                enemy_list.add(enemy)  # добавляем врага в группу (pygame.sprite.Group или список)
+                enemy = BaseEnemy((self.pos[0], self.pos[1]), en["sprite"], en["width"], en["height"], en["frames"], en["gold"], en["speed"], en["damage"]*multy, en["hp"]*multy)  # или другой конструктор, если нужен конкретный враг
+                enemy.type = mob
+                enemy_list.add(enemy)
 
-        # Уменьшаем счетчик мобов
         self.mob_list[mob] -= 1
         if self.mob_list[mob] <= 0:
-            del self.mob_list[mob]  # удаляем моба, если кончились
+            del self.mob_list[mob]
 
-        # Если больше мобов нет, флаг окончания
         if not self.mob_list:
             self.finished = True
 
@@ -265,7 +261,7 @@ class Background(pygame.sprite.Sprite):
                         for enemy in wave["enemies"]:
                             self.enemy_list[enemy["type"]] = enemy["count"]
 
-    def spawn_enemies(self, enemy_list):
+    def spawn_enemies(self, enemy_list, multy = 1):
         # Фильтруем доступные базы
         count = 0
         for base in self.bases:
@@ -279,7 +275,7 @@ class Background(pygame.sprite.Sprite):
 
         # Выбираем случайную базу и спавним врага
         base = random.choice(available_bases)
-        base.spawn(enemy_list)
+        base.spawn(enemy_list, multy)
 
     def update_wave(self):
         if self.finished_spawning:
