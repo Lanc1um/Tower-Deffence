@@ -1,28 +1,60 @@
 { "compressionlevel":-1,
  "height":35,
-  "waves_count": 3,
+  "waves_count": 5,
  "infinite":false,
     "waves": [
-    {
+        {
       "waveNumber": 1,
       "enemies": [
-        {"type": "Слизень", "count": 5},
-        {"type": "Большой слизень", "count": 2},
-        {"type": "Король слизней", "count": 1}
+        {"type": "Слизень", "count": 25}
       ]
     },
     {
       "waveNumber": 2,
       "enemies": [
-        {"type": "Слизень", "count": 1}
+        {"type": "Слизень", "count": 25},
+        {"type": "Большой слизень", "count": 15}
+      ]
+    },
+      {
+        "waveNumber": 3,
+        "enemies": [
+          {
+            "type": "Слизень",
+            "count": 50
+          },
+          {
+            "type": "Большой слизень",
+            "count": 30
+          },
+          {
+            "type": "Король слизней",
+            "count": 5
+          }
+        ]
+      },
+      {
+        "waveNumber": 4,
+        "enemies": [
+         {"type": "Слизень", "count": 50},
+         {"type": "Большой слизень", "count": 35},
+         {"type": "Король слизней", "count": 10}
       ]
     },
     {
-      "waveNumber": 3,
+      "waveNumber": 5,
       "enemies": [
-        {"type": "Слизень", "count": 3},
-        {"type": "Большой слизень", "count": 3},
-        {"type": "Король слизней", "count": 1}
+        {"type": "Слизень", "count": 75},
+        {"type": "Большой слизень", "count": 50},
+        {"type": "Король слизней", "count": 25}
+      ]
+    },
+      {
+      "waveNumber": "secret",
+      "enemies": [
+        {"type": "Слизень", "count": 999},
+        {"type": "Большой слизень", "count": 999},
+        {"type": "Король слизней", "count": 999}
       ]
     }
   ],

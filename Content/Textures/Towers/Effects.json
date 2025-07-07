@@ -1,20 +1,14 @@
 {
   "effects": [
     {
-      "name": "freeze",
-      "description": "Замораживает врага, замедляя его движение",
-      "duration_ms": 2000,
-      "color_overlay": [0, 100, 255, 150],
-      "speed_modifier": 0.5,
-      "damage_per_second": 0
+      "name": "slow",
+      "duration_ms": 3500,
+      "speed_modifier": 0.375
     },
     {
-      "name": "burn",
-      "description": "Поджигает врага, нанося урон со временем",
+      "name": "freeze",
       "duration_ms": 3000,
-      "color_overlay": [255, 50, 0, 120],
-      "speed_modifier": 1.0,
-      "damage_per_second": 5
+      "speed_modifier": 0
     }
   ]
 }

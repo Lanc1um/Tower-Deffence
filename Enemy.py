@@ -76,7 +76,7 @@ class Dummy(pygame.sprite.Sprite):
         pass
 
 class BaseEnemy(pygame.sprite.Sprite):
-    def __init__(self, position, image, width, height, sprites, money, speed, damage, cellsize = 16, rotation = 0):
+    def __init__(self, position, image, width, height, sprites, money, speed, damage, hp, cellsize = 16, rotation = 0):
         super().__init__()
         if isinstance(image, str):
             self.sprite_sheet = pygame.image.load(image).convert_alpha()
@@ -113,7 +113,7 @@ class BaseEnemy(pygame.sprite.Sprite):
                           }
 
         self.effects = {"freeze": 0,
-                        "burn": 0}
+                        "slow": 0}
 
         with open("Content/Textures/Towers/Effects.json", 'r', encoding='utf-8') as file:
             self.effect_list = json.load(file)
@@ -129,7 +129,8 @@ class BaseEnemy(pygame.sprite.Sprite):
         self.vely = 0
         self.normal_velx = 1
         self.normal_vely = 0
-        self.hp = 100
+        self.hp = hp
+        self.max_hp = hp
         self.money = money
         self.damage = damage
 

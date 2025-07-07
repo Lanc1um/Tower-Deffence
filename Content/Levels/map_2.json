@@ -1,30 +1,53 @@
 { "compressionlevel":-1,
  "height":35,
-  "waves_count": 3,
+  "waves_count": 5,
  "infinite":false,
 "waves": [
-    {
+     {
       "waveNumber": 1,
       "enemies": [
-        {"type": "Летучая мышь", "count": 100},
-        {"type": "Гоблин", "count": 70},
-        {"type": "Зомби", "count": 60}
+        {"type": "Летучая мышь", "count": 25},
+        {"type": "Зомби", "count": 15}
       ]
     },
     {
       "waveNumber": 2,
       "enemies": [
-        {"type": "Летучая мышь", "count": 2},
-        {"type": "Гоблин", "count": 3},
-        {"type": "Зомби", "count": 2}
+        {"type": "Летучая мышь", "count": 35},
+        {"type": "Гоблин", "count": 10},
+        {"type": "Зомби", "count": 30}
       ]
     },
     {
       "waveNumber": 3,
       "enemies": [
-        {"type": "Летучая мышь", "count": 3},
-        {"type": "Гоблин", "count": 3},
-        {"type": "Зомби", "count": 3}
+        {"type": "Летучая мышь", "count": 50},
+        {"type": "Гоблин", "count": 15},
+        {"type": "Зомби", "count": 35}
+      ]
+    },
+    {
+      "waveNumber": 4,
+      "enemies": [
+        {"type": "Летучая мышь", "count": 75},
+        {"type": "Гоблин", "count": 25},
+        {"type": "Зомби", "count": 50}
+      ]
+    },
+    {
+      "waveNumber": 5,
+      "enemies": [
+        {"type": "Летучая мышь", "count": 100},
+        {"type": "Гоблин", "count": 50},
+        {"type": "Зомби", "count": 75}
+      ]
+    },
+      {
+      "waveNumber": "secret",
+      "enemies": [
+        {"type": "Летучая мышь", "count": 999},
+        {"type": "Гоблин", "count": 999},
+        {"type": "Зомби", "count": 999}
       ]
     }
   ],
